@@ -1,0 +1,2688 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#059669" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Atelier Menu" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23059669'/%3E%3Cpath d='M30 28v44M24 28v16c0 4 3 7 6 7s6-3 6-7V28M56 28v44M56 28c8 0 14 6 14 14s-6 14-14 14' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23059669'/%3E%3Cpath d='M30 28v44M24 28v16c0 4 3 7 6 7s6-3 6-7V28M56 28v44M56 28c8 0 14 6 14 14s-6 14-14 14' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" />
+  <title>Atelier Menu — Semainier, Recettes & Courses</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            cream: '#FAF9F6',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #FAF9F6;
+      color: #1C1917;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Custom subtle scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D6D3D1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #A8A29E;
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-up {
+      animation: fadeSlideUp 0.22s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-cream text-stone-900 antialiased selection:bg-emerald-100 selection:text-emerald-900">
+
+  <!-- =====================================================================
+       EN-TÊTE PRINCIPAL & NAVIGATION DESKTOP
+  ====================================================================== -->
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-stone-200/80">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <!-- Logo & Titre -->
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shadow-sm shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+          </svg>
+        </div>
+        <div class="truncate">
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-stone-900 truncate">Atelier Menu</h1>
+          <p class="text-xs text-stone-500 hidden sm:block">Repas, courses & historique partagés</p>
+        </div>
+      </div>
+
+      <!-- Navigation Desktop -->
+      <nav class="hidden md:flex items-center bg-stone-100/90 p-1 rounded-xl border border-stone-200/60" aria-label="Navigation principale">
+        <button data-tab="planner" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2">
+          <span>Semainier</span>
+        </button>
+        <button data-tab="groceries" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2">
+          <span>Courses</span>
+          <span id="desktop-grocery-badge" class="hidden px-1.5 py-0.5 text-xs rounded-full bg-emerald-600 text-white font-bold">0</span>
+        </button>
+        <button data-tab="recipes" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2">
+          <span>Mes Recettes</span>
+        </button>
+        <button data-tab="history" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2">
+          <span>Historique</span>
+        </button>
+      </nav>
+
+      <!-- Statut Sync & Code Foyer -->
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="open-install-btn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 text-xs sm:text-sm font-semibold text-emerald-800 transition-colors" title="Installer sur iPhone ou Android">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          <span>App Mobile</span>
+        </button>
+        <button id="open-sync-btn" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200/80 border border-stone-200/80 text-xs sm:text-sm font-medium text-stone-700 transition-colors" title="Synchronisation multi-appareils et GitHub Pages">
+          <span id="sync-dot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+          <span class="hidden sm:inline text-stone-500">Foyer :</span>
+          <span id="header-household-label" class="font-semibold text-stone-900 max-w-[95px] truncate">mon-foyer</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       CONTENU PRINCIPAL DYNAMIQUE
+  ====================================================================== -->
+  <main id="app-content" class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-5 pb-28 md:pb-12">
+    <!-- Rendu dynamique par JavaScript -->
+  </main>
+
+  <!-- =====================================================================
+       NAVIGATION MOBILE (BARRE INFÉRIEURE)
+  ====================================================================== -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-stone-200 px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.04)]" aria-label="Navigation mobile">
+    <div class="grid grid-cols-4 gap-1">
+      <button data-tab="planner" class="mobile-nav-btn flex flex-col items-center justify-center py-2 px-1 rounded-xl text-xs font-medium transition-colors">
+        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span>Semainier</span>
+      </button>
+      <button data-tab="groceries" class="mobile-nav-btn relative flex flex-col items-center justify-center py-2 px-1 rounded-xl text-xs font-medium transition-colors">
+        <div class="relative">
+          <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span id="mobile-grocery-badge" class="hidden absolute -top-1.5 -right-2.5 px-1.5 py-0.2 text-[10px] rounded-full bg-emerald-600 text-white font-bold">0</span>
+        </div>
+        <span>Courses</span>
+      </button>
+      <button data-tab="recipes" class="mobile-nav-btn flex flex-col items-center justify-center py-2 px-1 rounded-xl text-xs font-medium transition-colors">
+        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+        <span>Recettes</span>
+      </button>
+      <button data-tab="history" class="mobile-nav-btn flex flex-col items-center justify-center py-2 px-1 rounded-xl text-xs font-medium transition-colors">
+        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Historique</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- =====================================================================
+       CONTENEUR DES MODALES & NOTIFICATIONS TOAST
+  ====================================================================== -->
+  <div id="modal-root"></div>
+  <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-4 left-4 md:left-auto z-50 flex flex-col items-center md:items-end gap-2 pointer-events-none"></div>
+
+  <!-- =====================================================================
+       LOGIQUE APPLICATIVE & SYNCHRONISATION TEMPS RÉEL
+  ====================================================================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // =========================================================================
+    // 1. CONSTANTES & DONNÉES INITIALES (RECETTES DE DÉPART)
+    // =========================================================================
+    const DAYS_FR = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+    const MONTHS_SHORT_FR = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+    const GROCERY_CATEGORIES = [
+      'Fruits & Légumes',
+      'Frais & Crémerie',
+      'Boucherie & Poisson',
+      'Épicerie',
+      'Boulangerie',
+      'Surgelés & Boissons',
+      'Maison & Autre'
+    ];
+    const RECIPE_CATEGORIES = [
+      'Rapide (< 20 min)',
+      'Plat familial',
+      'Végétarien',
+      'Poisson',
+      'Viande',
+      'Pâtes & Riz',
+      'Léger & Salade'
+    ];
+
+    const STARTER_RECIPES = [
+      {
+        slug: 'pates-carbonara',
+        title: 'Pâtes à la carbonara',
+        category: 'Pâtes & Riz',
+        prepTime: 15,
+        notes: 'Tagliatelles, lardons dorés, crème fraîche et parmesan.',
+        ingredients: [
+          { name: 'Tagliatelles', qty: '400 g', category: 'Épicerie' },
+          { name: 'Lardons', qty: '200 g', category: 'Frais & Crémerie' },
+          { name: 'Crème fraîche', qty: '20 cl', category: 'Frais & Crémerie' },
+          { name: 'Parmesan', qty: '80 g', category: 'Frais & Crémerie' }
+        ]
+      },
+      {
+        slug: 'pates-bolognaise',
+        title: 'Pâtes à la bolognaise',
+        category: 'Pâtes & Riz',
+        prepTime: 20,
+        notes: 'Spaghetti avec sauce bolognaise et steaks hachés émiettés.',
+        ingredients: [
+          { name: 'Spaghetti', qty: '400 g', category: 'Épicerie' },
+          { name: 'Sauce bolognaise', qty: '1 pot', category: 'Épicerie' },
+          { name: 'Steaks hachés', qty: '4', category: 'Boucherie & Poisson' }
+        ]
+      },
+      {
+        slug: 'pates-saucisse',
+        title: 'Pâtes saucisse (Penne & Knacki)',
+        category: 'Rapide (< 20 min)',
+        prepTime: 15,
+        notes: 'Penne avec sauce tomate cuisinée et rondelles de Knacki.',
+        ingredients: [
+          { name: 'Penne', qty: '400 g', category: 'Épicerie' },
+          { name: 'Sauce tomate cuisinée', qty: '1 pot', category: 'Épicerie' },
+          { name: 'Saucisses Knacki', qty: '1 paquet', category: 'Frais & Crémerie' }
+        ]
+      },
+      {
+        slug: 'pates-poulet-sauce-tomate',
+        title: 'Pâtes poulet sauce tomate',
+        category: 'Pâtes & Riz',
+        prepTime: 20,
+        notes: 'Dés de poulet poêlés avec pâtes et sauce tomate.',
+        ingredients: [
+          { name: 'Pâtes', qty: '400 g', category: 'Épicerie' },
+          { name: 'Filets de poulet', qty: '400 g', category: 'Boucherie & Poisson' },
+          { name: 'Sauce tomate', qty: '1 pot', category: 'Épicerie' }
+        ]
+      },
+      {
+        slug: 'pates-poulet-moutarde',
+        title: 'Pâtes poulet moutarde',
+        category: 'Pâtes & Riz',
+        prepTime: 20,
+        notes: 'Émincés de poulet à la crème et à la moutarde servis avec des pâtes.',
+        ingredients: [
+          { name: 'Pâtes', qty: '400 g', category: 'Épicerie' },
+          { name: 'Filets de poulet', qty: '400 g', category: 'Boucherie & Poisson' },
+          { name: 'Moutarde', qty: '1 pot', category: 'Épicerie' },
+          { name: 'Crème fraîche', qty: '20 cl', category: 'Frais & Crémerie' }
+        ]
+      },
+      {
+        slug: 'pates-quenelle-veau',
+        title: 'Pâtes quenelles de veau',
+        category: 'Pâtes & Riz',
+        prepTime: 20,
+        notes: 'Quenelles de veau dorées ou gratinées accompagnées de pâtes.',
+        ingredients: [
+          { name: 'Pâtes', qty: '400 g', category: 'Épicerie' },
+          { name: 'Quenelles de veau', qty: '4', category: 'Frais & Crémerie' },
+          { name: 'Sauce tomate ou béchamel', qty: '1 pot', category: 'Épicerie' }
+        ]
+      },
+      {
+        slug: 'pates-cheddar-chorizo-oignons',
+        title: 'Pâtes cheddar chorizo oignons',
+        category: 'Pâtes & Riz',
+        prepTime: 20,
+        notes: 'Oignons et rondelles de chorizo revenus à la poêle avec pâtes et cheddar fondant.',
+        ingredients: [
+          { name: 'Pâtes', qty: '400 g', category: 'Épicerie' },
+          { name: 'Chorizo', qty: '1', category: 'Frais & Crémerie' },
+          { name: 'Cheddar râpé', qty: '150 g', category: 'Frais & Crémerie' },
+          { name: 'Oignons', qty: '2', category: 'Fruits & Légumes' }
+        ]
+      },
+      {
+        slug: 'coquillettes-gratin-champignons',
+        title: 'Coquillettes viande hachée crème champignons (gratin)',
+        category: 'Plat familial',
+        prepTime: 35,
+        notes: 'Gratin de coquillettes avec viande hachée, champignons, crème et fromage râpé.',
+        ingredients: [
+          { name: 'Coquillettes', qty: '400 g', category: 'Épicerie' },
+          { name: 'Viande hachée', qty: '400 g', category: 'Boucherie & Poisson' },
+          { name: 'Champignons', qty: '250 g', category: 'Fruits & Légumes' },
+          { name: 'Crème fraîche', qty: '20 cl', category: 'Frais & Crémerie' },
+          { name: 'Fromage râpé', qty: '100 g', category: 'Frais & Crémerie' }
+        ]
+      },
+      {
+        slug: 'riz-boeuf-haricots-verts',
+        title: 'Riz bœuf haricots verts',
+        category: 'Pâtes & Riz',
+        prepTime: 25,
+        notes: 'Poêlée de bœuf et haricots verts accompagnée de riz.',
+        ingredients: [
+          { name: 'Riz', qty: '300 g', category: 'Épicerie' },
+          { name: 'Viande de bœuf', qty: '400 g', category: 'Boucherie & Poisson' },
+          { name: 'Haricots verts', qty: '500 g', category: 'Fruits & Légumes' }
+        ]
+      },
+      {
+        slug: 'riz-cordon-bleu',
+        title: 'Riz cordon bleu',
+        category: 'Rapide (< 20 min)',
+        prepTime: 15,
+        notes: 'Cordons bleus dorés à la poêle avec du riz.',
+        ingredients: [
+          { name: 'Riz', qty: '300 g', category: 'Épicerie' },
+          { name: 'Cordons bleus', qty: '4', category: 'Frais & Crémerie' }
+        ]
+      },
+      {
+        slug: 'riz-poulet-curry',
+        title: 'Riz poulet au curry',
+        category: 'Pâtes & Riz',
+        prepTime: 25,
+        notes: 'Émincés de poulet mijotés avec crème et curry, servis avec du riz.',
+        ingredients: [
+          { name: 'Riz', qty: '300 g', category: 'Épicerie' },
+          { name: 'Filets de poulet', qty: '400 g', category: 'Boucherie & Poisson' },
+          { name: 'Crème fraîche', qty: '20 cl', category: 'Frais & Crémerie' },
+          { name: 'Curry en poudre', qty: '1 flacon', category: 'Épicerie' }
+        ]
+      },
+      {
+        slug: 'riz-poulet-citron',
+        title: 'Riz poulet citron',
+        category: 'Pâtes & Riz',
+        prepTime: 25,
+        notes: 'Poulet poêlé déglacé au jus de citron avec un peu de crème et du riz.',
+        ingredients: [
+          { name: 'Riz', qty: '300 g', category: 'Épicerie' },
+          { name: 'Filets de poulet', qty: '400 g', category: 'Boucherie & Poisson' },
+          { name: 'Citrons', qty: '2', category: 'Fruits & Légumes' },
+          { name: 'Crème fraîche', qty: '15 cl', category: 'Frais & Crémerie' }
+        ]
+      },
+      {
+        slug: 'riz-steak-hache-creme',
+        title: 'Riz steak haché à la crème',
+        category: 'Rapide (< 20 min)',
+        prepTime: 15,
+        notes: 'Steaks hachés poêlés avec sauce à la crème et riz.',
+        ingredients: [
+          { name: 'Riz', qty: '300 g', category: 'Épicerie' },
+          { name: 'Steaks hachés', qty: '4', category: 'Boucherie & Poisson' },
+          { name: 'Crème fraîche', qty: '20 cl', category: 'Frais & Crémerie' }
+        ]
+      },
+      {
+        slug: 'gnocchi-poulet-paprika',
+        title: 'Gnocchi poulet paprika crème parmesan',
+        category: 'Pâtes & Riz',
+        prepTime: 20,
+        notes: 'Gnocchi poêlés avec dés de poulet au paprika, crème et parmesan.',
+        ingredients: [
+          { name: 'Gnocchi', qty: '500 g', category: 'Frais & Crémerie' },
+          { name: 'Filets de poulet', qty: '400 g', category: 'Boucherie & Poisson' },
+          { name: 'Crème fraîche', qty: '20 cl', category: 'Frais & Crémerie' },
+          { name: 'Parmesan', qty: '80 g', category: 'Frais & Crémerie' },
+          { name: 'Paprika', qty: '1 flacon', category: 'Épicerie' }
+        ]
+      },
+      {
+        slug: 'hamburger-maison-potatoes',
+        title: 'Hamburger maison & potatoes',
+        category: 'Plat familial',
+        prepTime: 30,
+        notes: 'Burgers maison garnis et potatoes dorées au four.',
+        ingredients: [
+          { name: 'Pains à burger', qty: '4', category: 'Boulangerie' },
+          { name: 'Steaks hachés', qty: '4', category: 'Boucherie & Poisson' },
+          { name: 'Cheddar en tranches', qty: '1 paquet', category: 'Frais & Crémerie' },
+          { name: 'Potatoes', qty: '1 sachet', category: 'Surgelés & Boissons' },
+          { name: 'Salade & Tomate', qty: '1', category: 'Fruits & Légumes' },
+          { name: 'Sauce burger', qty: '1 flacon', category: 'Épicerie' }
+        ]
+      },
+      {
+        slug: 'patates-steak-maroilles',
+        title: 'Patates steak petits pois carottes sauce maroilles',
+        category: 'Plat familial',
+        prepTime: 30,
+        notes: 'Pommes de terre, steak, petits pois carottes et sauce crémeuse au maroilles.',
+        ingredients: [
+          { name: 'Pommes de terre', qty: '800 g', category: 'Fruits & Légumes' },
+          { name: 'Steaks hachés', qty: '4', category: 'Boucherie & Poisson' },
+          { name: 'Petits pois carottes', qty: '1 boîte', category: 'Épicerie' },
+          { name: 'Maroilles', qty: '1', category: 'Frais & Crémerie' },
+          { name: 'Crème fraîche', qty: '20 cl', category: 'Frais & Crémerie' }
+        ]
+      },
+      {
+        slug: 'patates-saucisse-toulouse',
+        title: 'Patates saucisse de Toulouse haricots verts',
+        category: 'Viande',
+        prepTime: 30,
+        notes: 'Saucisses de Toulouse grillées avec pommes de terre et haricots verts.',
+        ingredients: [
+          { name: 'Pommes de terre', qty: '800 g', category: 'Fruits & Légumes' },
+          { name: 'Saucisses de Toulouse', qty: '4', category: 'Boucherie & Poisson' },
+          { name: 'Haricots verts', qty: '500 g', category: 'Fruits & Légumes' }
+        ]
+      },
+      {
+        slug: 'puree-paupiettes',
+        title: 'Purée de pommes de terre & paupiettes',
+        category: 'Plat familial',
+        prepTime: 35,
+        notes: 'Purée maison onctueuse accompagnée de paupiettes mijotées.',
+        ingredients: [
+          { name: 'Pommes de terre', qty: '1 kg', category: 'Fruits & Légumes' },
+          { name: 'Paupiettes', qty: '4', category: 'Boucherie & Poisson' },
+          { name: 'Lait', qty: '25 cl', category: 'Frais & Crémerie' },
+          { name: 'Beurre', qty: '50 g', category: 'Frais & Crémerie' }
+        ]
+      },
+      {
+        slug: 'pizza',
+        title: 'Pizza',
+        category: 'Rapide (< 20 min)',
+        prepTime: 15,
+        notes: 'Soirée pizza rapide.',
+        ingredients: [
+          { name: 'Pizzas', qty: '2', category: 'Surgelés & Boissons' },
+          { name: 'Salade verte', qty: '1', category: 'Fruits & Légumes' }
+        ]
+      },
+      {
+        slug: 'semoule-poulet-poivron',
+        title: 'Semoule poulet poivron',
+        category: 'Pâtes & Riz',
+        prepTime: 25,
+        notes: 'Poêlée de poulet et poivrons émincés avec de la semoule.',
+        ingredients: [
+          { name: 'Semoule', qty: '300 g', category: 'Épicerie' },
+          { name: 'Filets de poulet', qty: '400 g', category: 'Boucherie & Poisson' },
+          { name: 'Poivrons', qty: '2', category: 'Fruits & Légumes' }
+        ]
+      },
+      {
+        slug: 'semoule-ratatouille-poulet',
+        title: 'Semoule ratatouille poulet',
+        category: 'Pâtes & Riz',
+        prepTime: 25,
+        notes: 'Semoule accompagnée de ratatouille et de morceaux de poulet.',
+        ingredients: [
+          { name: 'Semoule', qty: '300 g', category: 'Épicerie' },
+          { name: 'Ratatouille', qty: '1 boîte', category: 'Épicerie' },
+          { name: 'Filets de poulet', qty: '400 g', category: 'Boucherie & Poisson' }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 2. UTILITAIRES DE DATES (SEMAINES LUNDI -> DIMANCHE)
+    // =========================================================================
+    function getMonday(dateObj) {
+      const d = new Date(dateObj);
+      d.setHours(12, 0, 0, 0);
+      const day = d.getDay(); // 0 = Dimanche, 1 = Lundi
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      d.setDate(diff);
+      return d;
+    }
+
+    function addDays(dateObj, days) {
+      const d = new Date(dateObj);
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    function toISODate(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatShortDate(dateObj) {
+      return `${dateObj.getDate()} ${MONTHS_SHORT_FR[dateObj.getMonth()]}`;
+    }
+
+    function formatWeekRange(mondayDate) {
+      const sunday = addDays(mondayDate, 6);
+      const sameMonth = mondayDate.getMonth() === sunday.getMonth();
+      if (sameMonth) {
+        return `Du ${mondayDate.getDate()} au ${sunday.getDate()} ${MONTHS_SHORT_FR[sunday.getMonth()]} ${sunday.getFullYear()}`;
+      }
+      return `Du ${formatShortDate(mondayDate)} au ${formatShortDate(sunday)} ${sunday.getFullYear()}`;
+    }
+
+    function getRelativeWeekLabel(weekOffset) {
+      if (weekOffset === 0) return 'Cette semaine';
+      if (weekOffset === -1) return 'Semaine dernière';
+      if (weekOffset === 1) return 'Semaine prochaine';
+      if (weekOffset < -1) return `Il y a ${Math.abs(weekOffset)} semaines`;
+      return `Dans ${weekOffset} semaines`;
+    }
+
+    // =========================================================================
+    // 3. ÉTAT APPLICATIF GLOBAL (EN MÉMOIRE + SYNCHRONISÉ CLOUD)
+    // =========================================================================
+    const currentMonday = getMonday(new Date());
+
+    const state = {
+      activeTab: 'planner',         // 'planner' | 'groceries' | 'recipes' | 'history'
+      weekOffset: 0,                // 0 = semaine en cours, -1 = semaine passée, +1 = semaine suivante
+      householdCode: 'mon-foyer',   // Code partagé entre tous les appareils du foyer
+      syncMode: 'connecting',       // 'connecting' | 'cloud' | 'local-memory' | 'error'
+      syncErrorMsg: '',
+      currentUser: null,
+
+      // Collections synchronisées
+      recipes: [],                  // Liste des recettes du foyer
+      mealPlans: {},                // Map { weekKey: { weekKey, householdCode, slots: { "YYYY-MM-DD_midi": {...} } } }
+      groceries: [],                // Liste des articles de courses
+
+      // Filtres UI
+      recipeSearch: '',
+      recipeCategoryFilter: 'Toutes',
+      groceryFilter: 'all',         // 'all' | 'todo' | 'done'
+      deleteConfirmId: null,        // Pour confirmation de suppression sans window.confirm()
+      clearCheckedConfirm: false
+    };
+
+    // Références Firebase
+    let db = null;
+    let auth = null;
+    let appId = typeof __app_id !== 'undefined' ? __app_id : 'atelier-menu-app';
+    let unsubRecipes = null;
+    let unsubMealPlans = null;
+    let unsubGroceries = null;
+    let seedAttemptedForHousehold = new Set();
+
+    // =========================================================================
+    // 4. INITIALISATION FIREBASE & SYNCHRONISATION TEMPS RÉEL
+    // =========================================================================
+    async function initCloudSync(customConfigObj = null) {
+      try {
+        updateSyncBadge('connecting');
+        let firebaseConfig = customConfigObj;
+
+        if (!firebaseConfig && typeof __firebase_config !== 'undefined' && __firebase_config) {
+          firebaseConfig = JSON.parse(__firebase_config);
+        }
+
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+          // Mode autonome en mémoire (par ex. si ouvert brut hors configuration Firebase)
+          state.syncMode = 'local-memory';
+          updateSyncBadge('local-memory');
+          seedInMemoryDemoData();
+          renderApp();
+          return;
+        }
+
+        const firebaseApp = initializeApp(firebaseConfig);
+        auth = getAuth(firebaseApp);
+        db = getFirestore(firebaseApp);
+
+        // RÈGLE 3 : Authentification AVANT toute requête Firestore
+        if (!customConfigObj && typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+          state.currentUser = user;
+          if (user) {
+            attachFirestoreListeners();
+          }
+        });
+      } catch (err) {
+        console.error('Erreur initialisation sync:', err);
+        state.syncMode = 'error';
+        state.syncErrorMsg = err.message || 'Erreur de connexion';
+        updateSyncBadge('error');
+        if (state.recipes.length === 0) {
+          seedInMemoryDemoData();
+        }
+        renderApp();
+      }
+    }
+
+    function attachFirestoreListeners() {
+      if (!db || !state.currentUser) return;
+
+      // Nettoyer d'éventuels anciens écouteurs
+      if (unsubRecipes) unsubRecipes();
+      if (unsubMealPlans) unsubMealPlans();
+      if (unsubGroceries) unsubGroceries();
+
+      // RÈGLE 1 : Chemins stricts /artifacts/{appId}/public/data/{collectionName}
+      // RÈGLE 2 : Pas de requêtes complexes where/orderBy -> filtrage et tri en mémoire JS
+      const recipesCol = collection(db, 'artifacts', appId, 'public', 'data', 'recipes');
+      const plansCol = collection(db, 'artifacts', appId, 'public', 'data', 'mealPlans');
+      const groceriesCol = collection(db, 'artifacts', appId, 'public', 'data', 'groceries');
+
+      unsubRecipes = onSnapshot(
+        recipesCol,
+        (snapshot) => {
+          const allRecipes = [];
+          snapshot.forEach((docSnap) => {
+            allRecipes.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          // Filtrer par foyer actif
+          const householdRecipes = allRecipes
+            .filter((r) => (r.householdCode || 'mon-foyer') === state.householdCode)
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+          state.recipes = householdRecipes;
+          state.syncMode = 'cloud';
+          updateSyncBadge('cloud');
+
+          // Si le foyer est tout neuf et vide, injecter les recettes de départ de façon idempotente
+          if (householdRecipes.length === 0 && !seedAttemptedForHousehold.has(state.householdCode)) {
+            seedAttemptedForHousehold.add(state.householdCode);
+            seedCloudStarterData(state.householdCode);
+          }
+
+          renderApp();
+        },
+        (error) => {
+          console.error('Erreur snapshot recipes:', error);
+          state.syncMode = 'error';
+          state.syncErrorMsg = error.message;
+          updateSyncBadge('error');
+        }
+      );
+
+      unsubMealPlans = onSnapshot(
+        plansCol,
+        (snapshot) => {
+          const plansMap = {};
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            if ((data.householdCode || 'mon-foyer') === state.householdCode && data.weekKey) {
+              plansMap[data.weekKey] = { id: docSnap.id, ...data };
+            }
+          });
+          state.mealPlans = plansMap;
+          renderApp();
+        },
+        (error) => {
+          console.error('Erreur snapshot mealPlans:', error);
+        }
+      );
+
+      unsubGroceries = onSnapshot(
+        groceriesCol,
+        (snapshot) => {
+          const items = [];
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            if ((data.householdCode || 'mon-foyer') === state.householdCode) {
+              items.push({ id: docSnap.id, ...data });
+            }
+          });
+          items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          state.groceries = items;
+          updateGroceryBadges();
+          renderApp();
+        },
+        (error) => {
+          console.error('Erreur snapshot groceries:', error);
+        }
+      );
+    }
+
+    async function seedCloudStarterData(householdCode) {
+      if (!db || !state.currentUser) return;
+      try {
+        const now = Date.now();
+        for (let i = 0; i < STARTER_RECIPES.length; i++) {
+          const r = STARTER_RECIPES[i];
+          const docId = `${householdCode}_recipe_${r.slug}`;
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'recipes', docId), {
+            householdCode,
+            title: r.title,
+            category: r.category,
+            prepTime: r.prepTime,
+            notes: r.notes,
+            ingredients: r.ingredients,
+            createdAt: now - i * 1000
+          });
+        }
+
+        // Ajouter un exemple de semaine précédente tracée pour illustrer l'historique immédiatement
+        const lastWeekMonday = addDays(currentMonday, -7);
+        const lastWeekKey = toISODate(lastWeekMonday);
+        const sampleSlots = {
+          [`${toISODate(addDays(lastWeekMonday, 0))}_soir`]: {
+            recipeId: `${householdCode}_recipe_pates-carbonara`,
+            title: 'Pâtes à la carbonara',
+            cooked: true
+          },
+          [`${toISODate(addDays(lastWeekMonday, 2))}_midi`]: {
+            recipeId: `${householdCode}_recipe_riz-poulet-curry`,
+            title: 'Riz poulet au curry',
+            cooked: true
+          },
+          [`${toISODate(addDays(lastWeekMonday, 4))}_soir`]: {
+            recipeId: `${householdCode}_recipe_gnocchi-poulet-paprika`,
+            title: 'Gnocchi poulet paprika crème parmesan',
+            cooked: true
+          },
+          [`${toISODate(addDays(lastWeekMonday, 6))}_midi`]: {
+            recipeId: `${householdCode}_recipe_puree-paupiettes`,
+            title: 'Purée de pommes de terre & paupiettes',
+            cooked: true
+          }
+        };
+
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'mealPlans', `${householdCode}_${lastWeekKey}`), {
+          householdCode,
+          weekKey: lastWeekKey,
+          slots: sampleSlots,
+          updatedAt: now
+        });
+      } catch (err) {
+        console.error('Erreur lors de l’initialisation des recettes:', err);
+      }
+    }
+
+    function seedInMemoryDemoData() {
+      const now = Date.now();
+      state.recipes = STARTER_RECIPES.map((r, i) => ({
+        id: `${state.householdCode}_recipe_${r.slug}`,
+        householdCode: state.householdCode,
+        ...r,
+        createdAt: now - i * 1000
+      }));
+
+      const lastWeekMonday = addDays(currentMonday, -7);
+      const lastWeekKey = toISODate(lastWeekMonday);
+      state.mealPlans[lastWeekKey] = {
+        id: `${state.householdCode}_${lastWeekKey}`,
+        householdCode: state.householdCode,
+        weekKey: lastWeekKey,
+        slots: {
+          [`${toISODate(addDays(lastWeekMonday, 0))}_soir`]: {
+            recipeId: `${state.householdCode}_recipe_pates-carbonara`,
+            title: 'Pâtes à la carbonara',
+            cooked: true
+          },
+          [`${toISODate(addDays(lastWeekMonday, 4))}_soir`]: {
+            recipeId: `${state.householdCode}_recipe_riz-poulet-curry`,
+            title: 'Riz poulet au curry',
+            cooked: true
+          }
+        }
+      };
+      updateGroceryBadges();
+    }
+
+    async function loadUserStarterPack(replaceExisting = false) {
+      const existingTitles = new Set(state.recipes.map((r) => r.title.toLowerCase().trim()));
+      const now = Date.now();
+
+      if (replaceExisting && db && state.currentUser && state.syncMode === 'cloud') {
+        for (const r of state.recipes) {
+          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'recipes', r.id));
+        }
+      } else if (replaceExisting) {
+        state.recipes = [];
+      }
+
+      let added = 0;
+      for (let i = 0; i < STARTER_RECIPES.length; i++) {
+        const r = STARTER_RECIPES[i];
+        if (!replaceExisting && existingTitles.has(r.title.toLowerCase().trim())) continue;
+
+        const docId = `${state.householdCode}_recipe_${r.slug}`;
+        const payload = {
+          householdCode: state.householdCode,
+          title: r.title,
+          category: r.category,
+          prepTime: r.prepTime,
+          notes: r.notes,
+          ingredients: r.ingredients,
+          createdAt: now - i * 1000
+        };
+
+        if (db && state.currentUser && state.syncMode === 'cloud') {
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'recipes', docId), payload);
+        } else {
+          state.recipes.push({ id: docId, ...payload });
+        }
+        added++;
+      }
+
+      renderApp();
+      showToast(
+        replaceExisting
+          ? `Carnet remplacé par vos ${STARTER_RECIPES.length} recettes habituelles !`
+          : added > 0
+          ? `${added} recette(s) ajoutée(s) à votre carnet !`
+          : 'Toutes vos 21 recettes sont déjà présentes.',
+        'success'
+      );
+    }
+
+    // =========================================================================
+    // 5. OPÉRATIONS DE DONNÉES (CRUD SYNCHRONISÉ)
+    // =========================================================================
+    async function saveMealSlot(weekKey, slotKey, mealData) {
+      const existingPlan = state.mealPlans[weekKey] || {
+        householdCode: state.householdCode,
+        weekKey,
+        slots: {}
+      };
+      const updatedSlots = { ...(existingPlan.slots || {}) };
+
+      if (mealData === null) {
+        delete updatedSlots[slotKey];
+      } else {
+        updatedSlots[slotKey] = mealData;
+      }
+
+      // Mise à jour optimiste immédiate
+      state.mealPlans[weekKey] = {
+        ...existingPlan,
+        slots: updatedSlots,
+        updatedAt: Date.now()
+      };
+      renderApp();
+
+      if (db && state.currentUser && state.syncMode === 'cloud') {
+        try {
+          const docId = `${state.householdCode}_${weekKey}`;
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'mealPlans', docId), {
+            householdCode: state.householdCode,
+            weekKey,
+            slots: updatedSlots,
+            updatedAt: Date.now()
+          });
+        } catch (err) {
+          console.error('Erreur sauvegarde repas:', err);
+          showToast('Erreur de synchronisation du repas', 'error');
+        }
+      }
+    }
+
+    async function saveRecipe(recipeObj) {
+      const id = recipeObj.id || `${state.householdCode}_rec_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+      const payload = {
+        householdCode: state.householdCode,
+        title: recipeObj.title.trim(),
+        category: recipeObj.category,
+        prepTime: Number(recipeObj.prepTime) || 20,
+        notes: (recipeObj.notes || '').trim(),
+        ingredients: recipeObj.ingredients || [],
+        createdAt: recipeObj.createdAt || Date.now()
+      };
+
+      if (db && state.currentUser && state.syncMode === 'cloud') {
+        try {
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'recipes', id), payload);
+          showToast('Recette enregistrée et partagée !', 'success');
+        } catch (err) {
+          console.error('Erreur sauvegarde recette:', err);
+          showToast('Erreur lors de la sauvegarde', 'error');
+        }
+      } else {
+        const idx = state.recipes.findIndex((r) => r.id === id);
+        if (idx >= 0) state.recipes[idx] = { id, ...payload };
+        else state.recipes.unshift({ id, ...payload });
+        renderApp();
+        showToast('Recette ajoutée !', 'success');
+      }
+    }
+
+    async function deleteRecipe(recipeId) {
+      if (db && state.currentUser && state.syncMode === 'cloud') {
+        try {
+          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'recipes', recipeId));
+          showToast('Recette supprimée', 'info');
+        } catch (err) {
+          console.error('Erreur suppression recette:', err);
+          showToast('Impossible de supprimer la recette', 'error');
+        }
+      } else {
+        state.recipes = state.recipes.filter((r) => r.id !== recipeId);
+        renderApp();
+        showToast('Recette supprimée', 'info');
+      }
+    }
+
+    async function addGroceryItem({ name, qty, category, fromMeal = '' }) {
+      const cleanName = (name || '').trim();
+      if (!cleanName) return;
+
+      // Vérifier si un article non coché porte déjà le même nom pour éviter les doublons inutiles
+      const existing = state.groceries.find(
+        (g) => !g.checked && g.name.toLowerCase() === cleanName.toLowerCase()
+      );
+
+      if (existing) {
+        const combinedQty = existing.qty && qty ? `${existing.qty} + ${qty}` : (qty || existing.qty || '');
+        const updated = {
+          ...existing,
+          qty: combinedQty,
+          fromMeal: fromMeal ? (existing.fromMeal ? `${existing.fromMeal}, ${fromMeal}` : fromMeal) : existing.fromMeal
+        };
+        if (db && state.currentUser && state.syncMode === 'cloud') {
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'groceries', existing.id), updated);
+        } else {
+          Object.assign(existing, updated);
+          updateGroceryBadges();
+          renderApp();
+        }
+        return;
+      }
+
+      const id = `${state.householdCode}_groc_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+      const payload = {
+        householdCode: state.householdCode,
+        name: cleanName,
+        qty: (qty || '').trim(),
+        category: category || 'Épicerie',
+        checked: false,
+        fromMeal,
+        createdAt: Date.now()
+      };
+
+      if (db && state.currentUser && state.syncMode === 'cloud') {
+        try {
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'groceries', id), payload);
+        } catch (err) {
+          console.error('Erreur ajout article course:', err);
+        }
+      } else {
+        state.groceries.unshift({ id, ...payload });
+        updateGroceryBadges();
+        renderApp();
+      }
+    }
+
+    async function toggleGroceryItem(itemId) {
+      const item = state.groceries.find((g) => g.id === itemId);
+      if (!item) return;
+      const updated = { ...item, checked: !item.checked };
+
+      if (db && state.currentUser && state.syncMode === 'cloud') {
+        try {
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'groceries', itemId), updated);
+        } catch (err) {
+          console.error('Erreur toggle course:', err);
+        }
+      } else {
+        item.checked = !item.checked;
+        updateGroceryBadges();
+        renderApp();
+      }
+    }
+
+    async function deleteGroceryItem(itemId) {
+      if (db && state.currentUser && state.syncMode === 'cloud') {
+        try {
+          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'groceries', itemId));
+        } catch (err) {
+          console.error('Erreur suppression course:', err);
+        }
+      } else {
+        state.groceries = state.groceries.filter((g) => g.id !== itemId);
+        updateGroceryBadges();
+        renderApp();
+      }
+    }
+
+    async function clearCheckedGroceries() {
+      const checkedItems = state.groceries.filter((g) => g.checked);
+      if (checkedItems.length === 0) return;
+
+      if (db && state.currentUser && state.syncMode === 'cloud') {
+        try {
+          for (const item of checkedItems) {
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'groceries', item.id));
+          }
+          showToast(`${checkedItems.length} article(s) retiré(s) du panier`, 'success');
+        } catch (err) {
+          console.error('Erreur nettoyage panier:', err);
+        }
+      } else {
+        state.groceries = state.groceries.filter((g) => !g.checked);
+        updateGroceryBadges();
+        renderApp();
+        showToast(`${checkedItems.length} article(s) retiré(s)`, 'success');
+      }
+    }
+
+    async function sendWeekIngredientsToGroceries(weekKey) {
+      const plan = state.mealPlans[weekKey];
+      if (!plan || !plan.slots) {
+        showToast('Aucun repas planifié cette semaine.', 'info');
+        return;
+      }
+
+      const slotValues = Object.values(plan.slots);
+      if (slotValues.length === 0) {
+        showToast('Planifiez au moins un repas avant de générer les courses.', 'info');
+        return;
+      }
+
+      let addedCount = 0;
+      for (const slot of slotValues) {
+        if (slot.recipeId) {
+          const recipe = state.recipes.find((r) => r.id === slot.recipeId);
+          if (recipe && Array.isArray(recipe.ingredients)) {
+            for (const ing of recipe.ingredients) {
+              await addGroceryItem({
+                name: ing.name,
+                qty: ing.qty,
+                category: ing.category || 'Épicerie',
+                fromMeal: recipe.title
+              });
+              addedCount++;
+            }
+          }
+        }
+      }
+
+      if (addedCount > 0) {
+        showToast(`${addedCount} ingrédient(s) ajouté(s) à votre liste de courses !`, 'success');
+      } else {
+        showToast('Les plats choisis n’ont pas d’ingrédients renseignés.', 'info');
+      }
+    }
+
+    // =========================================================================
+    // 6. ANALYSE DE L'HISTORIQUE (TRACABILITÉ DES SEMAINES PRÉCÉDENTES)
+    // =========================================================================
+    function getRecipeLastEatenInfo(recipeId, recipeTitle) {
+      const todayISO = toISODate(new Date());
+      let latestDateISO = null;
+      let count = 0;
+
+      Object.values(state.mealPlans).forEach((plan) => {
+        if (!plan.slots) return;
+        Object.entries(plan.slots).forEach(([slotKey, meal]) => {
+          const dateISO = slotKey.split('_')[0];
+          const matches =
+            (recipeId && meal.recipeId === recipeId) ||
+            (recipeTitle && meal.title && meal.title.toLowerCase() === recipeTitle.toLowerCase());
+
+          if (matches && dateISO <= todayISO) {
+            count++;
+            if (!latestDateISO || dateISO > latestDateISO) {
+              latestDateISO = dateISO;
+            }
+          }
+        });
+      });
+
+      if (!latestDateISO) {
+        return { label: 'Jamais mangé récemment', count: 0, daysAgo: Infinity };
+      }
+
+      const d1 = new Date(latestDateISO + 'T12:00:00');
+      const d2 = new Date(todayISO + 'T12:00:00');
+      const diffDays = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+
+      let label = '';
+      if (diffDays === 0) label = "Mangé aujourd'hui";
+      else if (diffDays === 1) label = 'Mangé hier';
+      else if (diffDays < 7) label = `Mangé il y a ${diffDays} jours`;
+      else {
+        const weeks = Math.floor(diffDays / 7);
+        label = weeks === 1 ? 'Mangé la semaine dernière' : `Mangé il y a ${weeks} semaines`;
+      }
+
+      return { label, count, daysAgo: diffDays, latestDateISO };
+    }
+
+    // =========================================================================
+    // 7. INTERFACE UTILISATEUR : MISE À JOUR BADGES, TOASTS & NAVIGATION
+    // =========================================================================
+    function updateSyncBadge(mode) {
+      const dot = document.getElementById('sync-dot');
+      const label = document.getElementById('header-household-label');
+      if (label) label.textContent = state.householdCode;
+      if (!dot) return;
+
+      dot.className = 'w-2.5 h-2.5 rounded-full ';
+      if (mode === 'cloud') {
+        dot.className += 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]';
+      } else if (mode === 'connecting') {
+        dot.className += 'bg-amber-400 animate-pulse';
+      } else if (mode === 'local-memory') {
+        dot.className += 'bg-sky-500';
+      } else {
+        dot.className += 'bg-rose-500';
+      }
+    }
+
+    function updateGroceryBadges() {
+      const remaining = state.groceries.filter((g) => !g.checked).length;
+      const dBadge = document.getElementById('desktop-grocery-badge');
+      const mBadge = document.getElementById('mobile-grocery-badge');
+
+      [dBadge, mBadge].forEach((el) => {
+        if (!el) return;
+        if (remaining > 0) {
+          el.textContent = remaining;
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+    }
+
+    function updateNavActiveStates() {
+      document.querySelectorAll('.nav-btn').forEach((btn) => {
+        const isActive = btn.dataset.tab === state.activeTab;
+        btn.className = isActive
+          ? 'nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 bg-white text-emerald-700 shadow-sm'
+          : 'nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 text-stone-600 hover:text-stone-900';
+      });
+
+      document.querySelectorAll('.mobile-nav-btn').forEach((btn) => {
+        const isActive = btn.dataset.tab === state.activeTab;
+        btn.className = isActive
+          ? 'mobile-nav-btn relative flex flex-col items-center justify-center py-2 px-1 rounded-xl text-xs font-semibold text-emerald-700 bg-emerald-50/80 transition-colors'
+          : 'mobile-nav-btn relative flex flex-col items-center justify-center py-2 px-1 rounded-xl text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors';
+      });
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      const bgColors = {
+        success: 'bg-stone-900 text-white border-stone-800',
+        info: 'bg-white text-stone-800 border-stone-200',
+        error: 'bg-rose-600 text-white border-rose-700'
+      };
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-lg border text-sm font-medium flex items-center gap-2.5 animate-fade-up max-w-sm ${bgColors[type] || bgColors.success}`;
+
+      const icon = type === 'success'
+        ? '<span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>'
+        : type === 'error'
+        ? '<span class="w-2 h-2 rounded-full bg-white shrink-0"></span>'
+        : '<span class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>';
+
+      toast.innerHTML = `${icon}<span>${escapeHTML(message)}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(6px)';
+        toast.style.transition = 'all 0.2s ease';
+        setTimeout(() => toast.remove(), 220);
+      }, 3000);
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // =========================================================================
+    // 8. RENDU DES 4 VUES PRINCIPALES
+    // =========================================================================
+    function renderApp() {
+      updateNavActiveStates();
+      const root = document.getElementById('app-content');
+      if (!root) return;
+
+      if (state.activeTab === 'planner') {
+        root.innerHTML = renderPlannerView();
+        bindPlannerEvents();
+      } else if (state.activeTab === 'groceries') {
+        root.innerHTML = renderGroceriesView();
+        bindGroceriesEvents();
+      } else if (state.activeTab === 'recipes') {
+        root.innerHTML = renderRecipesView();
+        bindRecipesEvents();
+      } else if (state.activeTab === 'history') {
+        root.innerHTML = renderHistoryView();
+        bindHistoryEvents();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // VUE 1 : SEMAINIER (PLANNING DES REPAS LUNDI -> DIMANCHE)
+    // -------------------------------------------------------------------------
+    function renderPlannerView() {
+      const targetMonday = addDays(currentMonday, state.weekOffset * 7);
+      const weekKey = toISODate(targetMonday);
+      const weekPlan = state.mealPlans[weekKey] || { slots: {} };
+      const slots = weekPlan.slots || {};
+      const todayISO = toISODate(new Date());
+
+      const plannedCount = Object.keys(slots).length;
+      const isPastWeek = state.weekOffset < 0;
+
+      let daysHTML = '';
+      for (let i = 0; i < 7; i++) {
+        const dayDate = addDays(targetMonday, i);
+        const dayISO = toISODate(dayDate);
+        const isToday = dayISO === todayISO;
+        const midiKey = `${dayISO}_midi`;
+        const soirKey = `${dayISO}_soir`;
+        const midiMeal = slots[midiKey];
+        const soirMeal = slots[soirKey];
+
+        daysHTML += `
+          <div class="bg-white rounded-2xl border ${isToday ? 'border-emerald-500 ring-2 ring-emerald-500/15' : 'border-stone-200/80'} p-4 sm:p-5 shadow-xs transition-all">
+            <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+              <!-- Colonne Jour -->
+              <div class="lg:w-44 shrink-0 flex items-center justify-between lg:block">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-stone-900 text-base">${DAYS_FR[i]}</span>
+                    ${isToday ? '<span class="px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider rounded-full bg-emerald-100 text-emerald-800">Aujourd’hui</span>' : ''}
+                  </div>
+                  <p class="text-xs sm:text-sm text-stone-500 mt-0.5">${formatShortDate(dayDate)}</p>
+                </div>
+              </div>
+
+              <!-- Créneaux Midi & Soir -->
+              <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                ${renderMealSlotCard(weekKey, midiKey, 'Midi', midiMeal)}
+                ${renderMealSlotCard(weekKey, soirKey, 'Soir', soirMeal)}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="space-y-5 animate-fade-up">
+          <!-- Barre de contrôle de semaine -->
+          <div class="bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center justify-between sm:justify-start gap-3">
+              <button id="prev-week-btn" class="p-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors" title="Semaine précédente">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+              </button>
+
+              <div class="text-center sm:text-left">
+                <div class="flex items-center justify-center sm:justify-start gap-2">
+                  <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                    state.weekOffset === 0
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : isPastWeek
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-sky-100 text-sky-800'
+                  }">${getRelativeWeekLabel(state.weekOffset)}</span>
+                  ${state.weekOffset !== 0 ? '<button id="today-week-btn" class="text-xs font-semibold text-emerald-700 hover:underline">Revenir à aujourd’hui</button>' : ''}
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-stone-900 mt-1">${formatWeekRange(targetMonday)}</h2>
+              </div>
+
+              <button id="next-week-btn" class="p-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors" title="Semaine suivante">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
+
+            <!-- Action rapide Courses -->
+            <div class="flex items-center gap-2.5">
+              <button id="generate-groceries-btn" data-week="${weekKey}" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-sm font-semibold shadow-xs transition-all flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span>Ajouter aux courses (${plannedCount} repas)</span>
+              </button>
+            </div>
+          </div>
+
+          ${isPastWeek ? `
+            <div class="bg-amber-50/90 border border-amber-200/80 rounded-2xl px-4 py-3 text-xs sm:text-sm text-amber-900 flex items-center gap-2.5">
+              <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>Vous consultez une <strong>semaine précédente</strong>. Tous les plats enregistrés ici sont automatiquement tracés dans votre historique.</span>
+            </div>
+          ` : ''}
+
+          <!-- Liste des 7 jours -->
+          <div class="space-y-3">
+            ${daysHTML}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMealSlotCard(weekKey, slotKey, periodLabel, meal) {
+      if (!meal) {
+        return `
+          <button
+            data-action="open-meal-picker"
+            data-week="${weekKey}"
+            data-slot="${slotKey}"
+            data-period="${periodLabel}"
+            class="group w-full text-left p-3.5 rounded-xl border border-dashed border-stone-300 hover:border-emerald-500 hover:bg-emerald-50/40 transition-all flex items-center justify-between gap-2 min-h-[68px]"
+          >
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-stone-400 group-hover:text-emerald-700">${periodLabel}</span>
+              <p class="text-sm text-stone-400 group-hover:text-emerald-800 font-medium mt-0.5">+ Choisir un plat</p>
+            </div>
+            <span class="w-7 h-7 rounded-lg bg-stone-100 group-hover:bg-emerald-600 group-hover:text-white text-stone-500 flex items-center justify-center transition-colors text-lg font-medium">+</span>
+          </button>
+        `;
+      }
+
+      const linkedRecipe = meal.recipeId ? state.recipes.find((r) => r.id === meal.recipeId) : null;
+
+      return `
+        <div class="p-3.5 rounded-xl border ${meal.cooked ? 'bg-emerald-50/50 border-emerald-200' : 'bg-stone-50/80 border-stone-200/90'} flex items-start justify-between gap-2.5 min-h-[68px] transition-all">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider ${periodLabel === 'Midi' ? 'text-amber-600' : 'text-indigo-600'}">${periodLabel}</span>
+              ${meal.cooked ? '<span class="text-[11px] font-semibold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded-md">Mangé ✓</span>' : ''}
+            </div>
+            <button
+              data-action="open-meal-picker"
+              data-week="${weekKey}"
+              data-slot="${slotKey}"
+              data-period="${periodLabel}"
+              class="text-left font-semibold text-sm text-stone-900 hover:text-emerald-700 line-clamp-2 mt-0.5 transition-colors"
+            >
+              ${escapeHTML(meal.title)}
+            </button>
+            ${linkedRecipe ? `<p class="text-[11px] text-stone-500 mt-0.5">${linkedRecipe.ingredients?.length || 0} ingrédients · ${linkedRecipe.prepTime} min</p>` : ''}
+          </div>
+
+          <div class="flex items-center gap-1 shrink-0">
+            <button
+              data-action="toggle-cooked"
+              data-week="${weekKey}"
+              data-slot="${slotKey}"
+              title="${meal.cooked ? 'Marquer comme non préparé' : 'Marquer comme cuisiné / mangé'}"
+              class="p-1.5 rounded-lg border transition-colors ${
+                meal.cooked
+                  ? 'bg-emerald-600 border-emerald-600 text-white'
+                  : 'bg-white border-stone-200 text-stone-400 hover:text-emerald-600 hover:border-emerald-400'
+              }"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+            </button>
+            <button
+              data-action="remove-meal"
+              data-week="${weekKey}"
+              data-slot="${slotKey}"
+              title="Retirer ce repas"
+              class="p-1.5 rounded-lg bg-white border border-stone-200 text-stone-400 hover:text-rose-600 hover:border-rose-300 transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // -------------------------------------------------------------------------
+    // VUE 2 : LISTE DE COURSES INTELLIGENTE
+    // -------------------------------------------------------------------------
+    function renderGroceriesView() {
+      const total = state.groceries.length;
+      const checkedCount = state.groceries.filter((g) => g.checked).length;
+      const todoCount = total - checkedCount;
+      const progressPct = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
+
+      const filtered = state.groceries.filter((item) => {
+        if (state.groceryFilter === 'todo') return !item.checked;
+        if (state.groceryFilter === 'done') return item.checked;
+        return true;
+      });
+
+      // Grouper par rayon / catégorie
+      const grouped = {};
+      GROCERY_CATEGORIES.forEach((cat) => (grouped[cat] = []));
+      filtered.forEach((item) => {
+        const cat = GROCERY_CATEGORIES.includes(item.category) ? item.category : 'Maison & Autre';
+        grouped[cat].push(item);
+      });
+
+      let categoriesHTML = '';
+      GROCERY_CATEGORIES.forEach((cat) => {
+        const items = grouped[cat];
+        if (items.length === 0) return;
+
+        categoriesHTML += `
+          <div class="bg-white rounded-2xl border border-stone-200/80 overflow-hidden shadow-xs">
+            <div class="px-4 py-2.5 bg-stone-50/90 border-b border-stone-200/70 flex items-center justify-between">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-stone-600">${escapeHTML(cat)}</h3>
+              <span class="text-xs font-semibold text-stone-400">${items.length}</span>
+            </div>
+            <ul class="divide-y divide-stone-100">
+              ${items
+                .map(
+                  (item) => `
+                <li class="px-4 py-3 flex items-center justify-between gap-3 hover:bg-stone-50/60 transition-colors">
+                  <button data-action="toggle-grocery" data-id="${item.id}" class="flex items-center gap-3 flex-1 text-left min-w-0">
+                    <span class="w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition-colors ${
+                      item.checked
+                        ? 'bg-emerald-600 border-emerald-600 text-white'
+                        : 'border-stone-300 bg-white'
+                    }">
+                      ${item.checked ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>' : ''}
+                    </span>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-sm font-medium ${item.checked ? 'line-through text-stone-400' : 'text-stone-900'} truncate">
+                        ${escapeHTML(item.name)}
+                        ${item.qty ? `<span class="ml-1.5 text-xs font-semibold px-2 py-0.5 rounded-md ${item.checked ? 'bg-stone-100 text-stone-400' : 'bg-emerald-50 text-emerald-700'}">${escapeHTML(item.qty)}</span>` : ''}
+                      </p>
+                      ${item.fromMeal ? `<p class="text-[11px] text-stone-400 truncate mt-0.5">Pour : ${escapeHTML(item.fromMeal)}</p>` : ''}
+                    </div>
+                  </button>
+                  <button data-action="delete-grocery" data-id="${item.id}" class="p-2 text-stone-400 hover:text-rose-600 rounded-lg transition-colors" title="Supprimer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                </li>
+              `
+                )
+                .join('')}
+            </ul>
+          </div>
+        `;
+      });
+
+      return `
+        <div class="space-y-5 animate-fade-up">
+          <!-- En-tête & Barre de progression -->
+          <div class="bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 class="text-xl font-bold text-stone-900">Liste de courses partagée</h2>
+                <p class="text-xs sm:text-sm text-stone-500 mt-0.5">
+                  ${todoCount} article(s) à acheter · ${checkedCount} dans le panier
+                </p>
+              </div>
+              <div class="flex items-center gap-2">
+                ${
+                  checkedCount > 0
+                    ? state.clearCheckedConfirm
+                      ? `<button id="confirm-clear-checked-btn" class="px-3.5 py-2 rounded-xl bg-rose-600 text-white text-xs font-semibold">Confirmer suppression (${checkedCount})</button>
+                         <button id="cancel-clear-checked-btn" class="px-3 py-2 rounded-xl bg-stone-100 text-stone-600 text-xs font-semibold">Annuler</button>`
+                      : `<button id="ask-clear-checked-btn" class="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-700 text-xs sm:text-sm font-semibold transition-colors">Vider le panier (${checkedCount})</button>`
+                    : ''
+                }
+              </div>
+            </div>
+
+            <!-- Jauge -->
+            <div class="mt-4 w-full h-2.5 bg-stone-100 rounded-full overflow-hidden">
+              <div class="h-full bg-emerald-600 transition-all duration-300 rounded-full" style="width: ${progressPct}%"></div>
+            </div>
+
+            <!-- Formulaire ajout rapide -->
+            <form id="quick-grocery-form" class="mt-4 grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+              <input
+                type="text"
+                id="grocery-name-input"
+                placeholder="Ajouter un article (ex: Café, Papier toilette, Pommes...)"
+                required
+                class="sm:col-span-5 px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-sm"
+              />
+              <input
+                type="text"
+                id="grocery-qty-input"
+                placeholder="Quantité (ex: 1 kg, 2)"
+                class="sm:col-span-3 px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-sm"
+              />
+              <select
+                id="grocery-cat-input"
+                class="sm:col-span-2 px-3 py-2.5 rounded-xl border border-stone-300 bg-white focus:border-emerald-500 outline-none text-sm"
+              >
+                ${GROCERY_CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join('')}
+              </select>
+              <button
+                type="submit"
+                class="sm:col-span-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-colors"
+              >
+                + Ajouter
+              </button>
+            </form>
+
+            <!-- Filtres -->
+            <div class="mt-4 flex items-center gap-2">
+              <button data-gfilter="all" class="gfilter-btn px-3 py-1.5 rounded-lg text-xs font-semibold ${state.groceryFilter === 'all' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600'}">Tous (${total})</button>
+              <button data-gfilter="todo" class="gfilter-btn px-3 py-1.5 rounded-lg text-xs font-semibold ${state.groceryFilter === 'todo' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600'}">À acheter (${todoCount})</button>
+              <button data-gfilter="done" class="gfilter-btn px-3 py-1.5 rounded-lg text-xs font-semibold ${state.groceryFilter === 'done' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600'}">Dans le panier (${checkedCount})</button>
+            </div>
+          </div>
+
+          <!-- Rayons -->
+          ${
+            categoriesHTML
+              ? `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${categoriesHTML}</div>`
+              : `<div class="bg-white rounded-2xl border border-stone-200/80 p-10 text-center">
+                   <p class="text-stone-500 text-sm">Votre liste de courses est vide pour ce filtre.</p>
+                   <p class="text-xs text-stone-400 mt-1">Ajoutez un article ci-dessus ou importez les ingrédients depuis votre Semainier.</p>
+                 </div>`
+          }
+        </div>
+      `;
+    }
+
+    // -------------------------------------------------------------------------
+    // VUE 3 : LIVRE DE RECETTES & MES PLATS PERSONNALISÉS
+    // -------------------------------------------------------------------------
+    function renderRecipesView() {
+      const queryStr = state.recipeSearch.toLowerCase().trim();
+      const existingTitleSet = new Set(state.recipes.map((r) => r.title.toLowerCase().trim()));
+      const missingStarterCount = STARTER_RECIPES.filter((r) => !existingTitleSet.has(r.title.toLowerCase().trim())).length;
+
+      const filteredRecipes = state.recipes.filter((r) => {
+        const matchesCat = state.recipeCategoryFilter === 'Toutes' || r.category === state.recipeCategoryFilter;
+        const matchesQuery =
+          !queryStr ||
+          r.title.toLowerCase().includes(queryStr) ||
+          (r.ingredients || []).some((ing) => ing.name.toLowerCase().includes(queryStr));
+        return matchesCat && matchesQuery;
+      });
+
+      return `
+        <div class="space-y-5 animate-fade-up">
+          <!-- En-tête Recettes -->
+          <div class="bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-xs space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 class="text-xl font-bold text-stone-900">Mes Recettes & Idées Repas</h2>
+                <p class="text-xs sm:text-sm text-stone-500 mt-0.5">${state.recipes.length} plat(s) enregistré(s) dans votre carnet partagé</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                ${
+                  missingStarterCount > 0
+                    ? `<button id="load-starter-pack-btn" class="px-3.5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs sm:text-sm font-semibold transition-colors">
+                        + Charger mes ${missingStarterCount} plats habituels
+                      </button>`
+                    : ''
+                }
+                <button id="open-new-recipe-btn" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-xs transition-colors flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                  <span>Ajouter une recette</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Recherche & Filtres par catégorie -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+              <div class="sm:col-span-8 relative">
+                <input
+                  type="text"
+                  id="recipe-search-input"
+                  value="${escapeHTML(state.recipeSearch)}"
+                  placeholder="Rechercher un plat ou un ingrédient (ex: poulet, lardons, riz...)"
+                  class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-sm"
+                />
+                <svg class="w-4 h-4 text-stone-400 absolute left-3 top-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
+                </svg>
+              </div>
+              <select
+                id="recipe-cat-filter"
+                class="sm:col-span-4 px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white focus:border-emerald-500 outline-none text-sm"
+              >
+                <option value="Toutes" ${state.recipeCategoryFilter === 'Toutes' ? 'selected' : ''}>Toutes les catégories</option>
+                ${RECIPE_CATEGORIES.map(
+                  (c) => `<option value="${c}" ${state.recipeCategoryFilter === c ? 'selected' : ''}>${c}</option>`
+                ).join('')}
+              </select>
+            </div>
+          </div>
+
+          <!-- Grille des recettes -->
+          ${
+            filteredRecipes.length > 0
+              ? `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  ${filteredRecipes
+                    .map((r) => {
+                      const historyInfo = getRecipeLastEatenInfo(r.id, r.title);
+                      const isDeleting = state.deleteConfirmId === r.id;
+                      return `
+                        <article class="bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-xs flex flex-col justify-between gap-4 hover:border-stone-300 transition-all">
+                          <div class="space-y-2.5">
+                            <div class="flex items-start justify-between gap-2">
+                              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-stone-100 text-stone-700">${escapeHTML(r.category || 'Plat familial')}</span>
+                              <span class="text-xs font-medium text-stone-400 shrink-0">⏱ ${r.prepTime || 20} min</span>
+                            </div>
+
+                            <h3 class="text-base font-bold text-stone-900 leading-snug">${escapeHTML(r.title)}</h3>
+
+                            <p class="text-xs font-medium ${historyInfo.count > 0 ? 'text-emerald-700' : 'text-stone-400'}">
+                              ${historyInfo.label}${historyInfo.count > 0 ? ` (${historyInfo.count}×)` : ''}
+                            </p>
+
+                            ${r.notes ? `<p class="text-xs text-stone-500 line-clamp-2">${escapeHTML(r.notes)}</p>` : ''}
+
+                            ${
+                              r.ingredients && r.ingredients.length > 0
+                                ? `<div class="flex flex-wrap gap-1.5 pt-1">
+                                    ${r.ingredients
+                                      .map(
+                                        (ing) =>
+                                          `<span class="px-2 py-0.5 rounded-md bg-stone-50 border border-stone-200/70 text-[11px] text-stone-600">${escapeHTML(ing.name)}${ing.qty ? ` (${escapeHTML(ing.qty)})` : ''}</span>`
+                                      )
+                                      .join('')}
+                                  </div>`
+                                : ''
+                            }
+                          </div>
+
+                          <div class="pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
+                            <button
+                              data-action="quick-plan-recipe"
+                              data-id="${r.id}"
+                              class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white text-xs font-semibold transition-colors"
+                            >
+                              + Planifier
+                            </button>
+
+                            <div class="flex items-center gap-1.5">
+                              ${
+                                isDeleting
+                                  ? `<button data-action="confirm-delete-recipe" data-id="${r.id}" class="px-2.5 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-semibold">Supprimer</button>
+                                     <button data-action="cancel-delete-recipe" data-id="${r.id}" class="px-2.5 py-1.5 rounded-lg bg-stone-100 text-stone-600 text-xs font-semibold">Annuler</button>`
+                                  : `<button data-action="edit-recipe" data-id="${r.id}" class="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors">Modifier</button>
+                                     <button data-action="ask-delete-recipe" data-id="${r.id}" class="p-1.5 rounded-lg text-stone-400 hover:text-rose-600 transition-colors" title="Supprimer">
+                                       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                     </button>`
+                              }
+                            </div>
+                          </div>
+                        </article>
+                      `;
+                    })
+                    .join('')}
+                </div>`
+              : `<div class="bg-white rounded-2xl border border-stone-200/80 p-10 text-center space-y-3">
+                  <p class="text-stone-500 text-sm">Aucune recette ne correspond à votre recherche.</p>
+                  <button id="empty-add-recipe-btn" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold">+ Créer une nouvelle recette</button>
+                </div>`
+          }
+        </div>
+      `;
+    }
+
+    // -------------------------------------------------------------------------
+    // VUE 4 : HISTORIQUE & SUIVI DES SEMAINES PRÉCÉDENTES
+    // -------------------------------------------------------------------------
+    function renderHistoryView() {
+      const todayISO = toISODate(new Date());
+      const currentWeekKey = toISODate(currentMonday);
+
+      // Collecter tous les repas enregistrés dans toutes les semaines
+      const allWeeks = Object.values(state.mealPlans)
+        .filter((plan) => plan && plan.weekKey && plan.slots && Object.keys(plan.slots).length > 0)
+        .sort((a, b) => b.weekKey.localeCompare(a.weekKey));
+
+      // Statistiques de fréquence par plat
+      const dishStatsMap = new Map();
+      let totalLoggedMeals = 0;
+
+      allWeeks.forEach((plan) => {
+        Object.entries(plan.slots).forEach(([slotKey, meal]) => {
+          const dateISO = slotKey.split('_')[0];
+          if (dateISO <= todayISO && meal.title) {
+            totalLoggedMeals++;
+            const key = meal.title.toLowerCase().trim();
+            const existing = dishStatsMap.get(key) || {
+              title: meal.title,
+              count: 0,
+              lastDateISO: dateISO
+            };
+            existing.count++;
+            if (dateISO > existing.lastDateISO) {
+              existing.lastDateISO = dateISO;
+              existing.title = meal.title;
+            }
+            dishStatsMap.set(key, existing);
+          }
+        });
+      });
+
+      const sortedStats = Array.from(dishStatsMap.values()).sort((a, b) => {
+        if (b.count !== a.count) return b.count - a.count;
+        return b.lastDateISO.localeCompare(a.lastDateISO);
+      });
+
+      return `
+        <div class="space-y-5 animate-fade-up">
+          <!-- En-tête & Compteurs clés -->
+          <div class="bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-xs">
+            <h2 class="text-xl font-bold text-stone-900">Historique & Traçabilité des repas</h2>
+            <p class="text-xs sm:text-sm text-stone-500 mt-0.5">Retrouvez tout ce que vous avez mangé les semaines précédentes pour varier vos menus.</p>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+              <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/70">
+                <p class="text-xs text-stone-500">Repas tracés</p>
+                <p class="text-2xl font-extrabold text-stone-900 mt-0.5">${totalLoggedMeals}</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/70">
+                <p class="text-xs text-stone-500">Plats différents cuisinés</p>
+                <p class="text-2xl font-extrabold text-emerald-700 mt-0.5">${sortedStats.length}</p>
+              </div>
+              <div class="col-span-2 sm:col-span-1 p-3.5 rounded-xl bg-stone-50 border border-stone-200/70">
+                <p class="text-xs text-stone-500">Semaines archivées</p>
+                <p class="text-2xl font-extrabold text-stone-900 mt-0.5">${allWeeks.length}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <!-- Colonne gauche : Chronologie des semaines -->
+            <div class="lg:col-span-7 space-y-4">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-stone-500 px-1">Semaines enregistrées</h3>
+
+              ${
+                allWeeks.length > 0
+                  ? allWeeks
+                      .map((plan) => {
+                        const mondayObj = new Date(plan.weekKey + 'T12:00:00');
+                        const diffWeeks = Math.round((mondayObj - currentMonday) / (1000 * 60 * 60 * 24 * 7));
+                        const entries = Object.entries(plan.slots).sort((a, b) => a[0].localeCompare(b[0]));
+
+                        return `
+                          <div class="bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-xs space-y-3">
+                            <div class="flex items-center justify-between gap-2">
+                              <div>
+                                <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                                  plan.weekKey === currentWeekKey
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : 'bg-stone-100 text-stone-700'
+                                }">${getRelativeWeekLabel(diffWeeks)}</span>
+                                <h4 class="text-base font-bold text-stone-900 mt-1">${formatWeekRange(mondayObj)}</h4>
+                              </div>
+                              <button
+                                data-action="jump-to-week"
+                                data-offset="${diffWeeks}"
+                                class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-emerald-600 hover:text-white text-xs font-semibold text-stone-700 transition-colors"
+                              >
+                                Ouvrir →
+                              </button>
+                            </div>
+
+                            <ul class="divide-y divide-stone-100">
+                              ${entries
+                                .map(([slotKey, meal]) => {
+                                  const [dISO, period] = slotKey.split('_');
+                                  const dObj = new Date(dISO + 'T12:00:00');
+                                  const dayIdx = (dObj.getDay() + 6) % 7;
+                                  return `
+                                    <li class="py-2 flex items-center justify-between gap-2 text-xs sm:text-sm">
+                                      <div class="flex items-center gap-2 min-w-0">
+                                        <span class="font-semibold text-stone-500 w-24 shrink-0">${DAYS_FR[dayIdx]} ${period === 'midi' ? 'Midi' : 'Soir'}</span>
+                                        <span class="font-medium text-stone-900 truncate">${escapeHTML(meal.title)}</span>
+                                      </div>
+                                      ${
+                                        meal.cooked
+                                          ? '<span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md shrink-0">Mangé ✓</span>'
+                                          : '<span class="text-[11px] text-stone-400 shrink-0">Prévu</span>'
+                                      }
+                                    </li>
+                                  `;
+                                })
+                                .join('')}
+                            </ul>
+                          </div>
+                        `;
+                      })
+                      .join('')
+                  : `<div class="bg-white rounded-2xl border border-stone-200/80 p-8 text-center text-sm text-stone-500">
+                      Aucun historique disponible pour le moment. Commencez par planifier vos repas dans le Semainier !
+                    </div>`
+              }
+            </div>
+
+            <!-- Colonne droite : Palmarès & dernière dégustation -->
+            <div class="lg:col-span-5 space-y-4">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-stone-500 px-1">Fréquence des plats</h3>
+              <div class="bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-xs">
+                ${
+                  sortedStats.length > 0
+                    ? `<ul class="divide-y divide-stone-100">
+                        ${sortedStats
+                          .map((st) => {
+                            const lastObj = new Date(st.lastDateISO + 'T12:00:00');
+                            return `
+                              <li class="py-2.5 flex items-center justify-between gap-3">
+                                <div class="min-w-0">
+                                  <p class="text-sm font-semibold text-stone-900 truncate">${escapeHTML(st.title)}</p>
+                                  <p class="text-[11px] text-stone-400">Dernière fois : ${formatShortDate(lastObj)}</p>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold shrink-0">${st.count}×</span>
+                              </li>
+                            `;
+                          })
+                          .join('')}
+                      </ul>`
+                    : `<p class="text-xs text-stone-400 text-center py-6">Vos statistiques apparaîtront ici dès vos premiers repas enregistrés.</p>`
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 9. MODALES (CHOIX DE REPAS, ÉDITEUR DE RECETTE, SYNC & GITHUB)
+    // =========================================================================
+    function renderPickerRecipeItems(query = '') {
+      const q = query.toLowerCase().trim();
+      const matches = state.recipes.filter(
+        (r) =>
+          !q ||
+          r.title.toLowerCase().includes(q) ||
+          (r.category || '').toLowerCase().includes(q) ||
+          (r.ingredients || []).some((ing) => ing.name.toLowerCase().includes(q))
+      );
+
+      if (matches.length === 0) {
+        return `<p class="text-xs text-stone-400 text-center py-6">Aucune recette trouvée pour « ${escapeHTML(query)} ».</p>`;
+      }
+
+      return matches
+        .map((r) => {
+          const hist = getRecipeLastEatenInfo(r.id, r.title);
+          return `
+            <button
+              type="button"
+              data-action="select-picker-recipe"
+              data-id="${r.id}"
+              class="w-full text-left p-3 rounded-xl border border-stone-200/80 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all flex items-center justify-between gap-3"
+            >
+              <div class="min-w-0">
+                <p class="text-sm font-semibold text-stone-900 truncate">${escapeHTML(r.title)}</p>
+                <p class="text-[11px] text-stone-500 mt-0.5">
+                  ${escapeHTML(r.category || 'Plat familial')} · ⏱ ${r.prepTime || 20} min ·
+                  <span class="${hist.count > 0 ? 'text-emerald-700 font-medium' : 'text-stone-400'}">${hist.label}</span>
+                </p>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-semibold shrink-0">Choisir</span>
+            </button>
+          `;
+        })
+        .join('');
+    }
+
+    function openMealPickerModal(weekKey, slotKey, periodLabel) {
+      const currentMeal = state.mealPlans[weekKey]?.slots?.[slotKey] || null;
+      const dateISO = slotKey.split('_')[0];
+      const dateObj = new Date(dateISO + 'T12:00:00');
+      const dayName = DAYS_FR[(dateObj.getDay() + 6) % 7] || '';
+
+      const modalRoot = document.getElementById('modal-root');
+      modalRoot.innerHTML = `
+        <div class="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4" id="modal-backdrop">
+          <div class="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-stone-200 overflow-hidden animate-fade-up max-h-[90vh] flex flex-col">
+            <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">${dayName} ${formatShortDate(dateObj)} · ${escapeHTML(periodLabel)}</p>
+                <h3 class="text-lg font-bold text-stone-900">Choisir un plat</h3>
+              </div>
+              <button id="close-modal-btn" class="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-4">
+              <!-- Saisie libre rapide -->
+              <form id="custom-meal-form" class="space-y-2">
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-500">Plat libre ou reste</label>
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    id="custom-meal-input"
+                    value="${escapeHTML(currentMeal?.title || '')}"
+                    placeholder="Ex: Restes de pâtes, Omelette, Restaurant..."
+                    class="flex-1 px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-500 outline-none text-sm"
+                  />
+                  <button type="submit" class="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold shrink-0">
+                    Valider
+                  </button>
+                </div>
+              </form>
+
+              <!-- Sélection depuis le carnet de recettes -->
+              <div class="space-y-2.5 pt-2 border-t border-stone-100">
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-500">Ou choisir parmi mes recettes (${state.recipes.length})</label>
+                <input
+                  type="text"
+                  id="picker-search-input"
+                  placeholder="Filtrer mes recettes..."
+                  class="w-full px-3.5 py-2 rounded-xl border border-stone-300 focus:border-emerald-500 outline-none text-sm"
+                />
+                <div id="picker-recipes-list" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                  ${renderPickerRecipeItems('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const bindRecipeSelectButtons = () => {
+        document.querySelectorAll('[data-action="select-picker-recipe"]').forEach((btn) => {
+          btn.onclick = async () => {
+            const rec = state.recipes.find((r) => r.id === btn.dataset.id);
+            if (!rec) return;
+            await saveMealSlot(weekKey, slotKey, {
+              recipeId: rec.id,
+              title: rec.title,
+              cooked: currentMeal?.cooked || false
+            });
+            closeModal();
+          };
+        });
+      };
+
+      document.getElementById('close-modal-btn').onclick = closeModal;
+      document.getElementById('modal-backdrop').onclick = (e) => {
+        if (e.target.id === 'modal-backdrop') closeModal();
+      };
+
+      document.getElementById('custom-meal-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('custom-meal-input').value.trim();
+        if (!title) return;
+        await saveMealSlot(weekKey, slotKey, {
+          recipeId: currentMeal?.title === title ? currentMeal.recipeId || null : null,
+          title,
+          cooked: currentMeal?.cooked || false
+        });
+        closeModal();
+      };
+
+      document.getElementById('picker-search-input').oninput = (e) => {
+        document.getElementById('picker-recipes-list').innerHTML = renderPickerRecipeItems(e.target.value);
+        bindRecipeSelectButtons();
+      };
+
+      bindRecipeSelectButtons();
+    }
+
+    function openRecipeEditorModal(existingRecipe = null) {
+      const isEdit = Boolean(existingRecipe);
+      let ingredients = existingRecipe?.ingredients?.length
+        ? existingRecipe.ingredients.map((i) => ({ ...i }))
+        : [{ name: '', qty: '', category: 'Épicerie' }];
+
+      const modalRoot = document.getElementById('modal-root');
+      modalRoot.innerHTML = `
+        <div class="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4" id="modal-backdrop">
+          <div class="bg-white w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl shadow-2xl border border-stone-200 overflow-hidden animate-fade-up max-h-[92vh] flex flex-col">
+            <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
+              <h3 class="text-lg font-bold text-stone-900">${isEdit ? 'Modifier la recette' : 'Nouvelle recette'}</h3>
+              <button id="close-modal-btn" class="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <form id="recipe-editor-form" class="p-5 overflow-y-auto space-y-4">
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-1">Nom du plat *</label>
+                <input
+                  type="text"
+                  id="rec-title-input"
+                  required
+                  value="${escapeHTML(existingRecipe?.title || '')}"
+                  placeholder="Ex: Lasagnes maison, Poulet basquaise..."
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-500 outline-none text-sm"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-1">Catégorie</label>
+                  <select id="rec-cat-input" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white focus:border-emerald-500 outline-none text-sm">
+                    ${RECIPE_CATEGORIES.map(
+                      (c) => `<option value="${c}" ${(existingRecipe?.category || 'Plat familial') === c ? 'selected' : ''}>${c}</option>`
+                    ).join('')}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-1">Temps de préparation (min)</label>
+                  <input
+                    type="number"
+                    id="rec-time-input"
+                    min="1"
+                    max="300"
+                    value="${existingRecipe?.prepTime || 20}"
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-500 outline-none text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-1">Notes / Préparation rapide</label>
+                <input
+                  type="text"
+                  id="rec-notes-input"
+                  value="${escapeHTML(existingRecipe?.notes || '')}"
+                  placeholder="Astuce de cuisson ou accompagnement..."
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-500 outline-none text-sm"
+                />
+              </div>
+
+              <!-- Liste dynamique d'ingrédients -->
+              <div class="space-y-2 pt-2 border-t border-stone-100">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-bold uppercase tracking-wider text-stone-500">Ingrédients (pour la liste de courses)</label>
+                  <button type="button" id="add-ing-row-btn" class="text-xs font-semibold text-emerald-700 hover:underline">+ Ajouter un ingrédient</button>
+                </div>
+                <div id="ingredients-rows-container" class="space-y-2"></div>
+              </div>
+
+              <div class="pt-3 border-t border-stone-100 flex items-center justify-end gap-2">
+                <button type="button" id="cancel-recipe-btn" class="px-4 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-sm font-semibold">Annuler</button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-xs">Enregistrer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+
+      const container = document.getElementById('ingredients-rows-container');
+
+      const syncIngredientsFromDOM = () => {
+        const rows = container.querySelectorAll('.ing-row');
+        ingredients = Array.from(rows).map((row) => ({
+          name: row.querySelector('.ing-name').value,
+          qty: row.querySelector('.ing-qty').value,
+          category: row.querySelector('.ing-cat').value
+        }));
+      };
+
+      const renderIngredientRows = () => {
+        container.innerHTML = ingredients
+          .map(
+            (ing, idx) => `
+          <div class="ing-row grid grid-cols-12 gap-1.5 items-center">
+            <input
+              type="text"
+              value="${escapeHTML(ing.name)}"
+              placeholder="Ingrédient"
+              class="ing-name col-span-5 px-2.5 py-2 rounded-lg border border-stone-300 text-xs outline-none focus:border-emerald-500"
+            />
+            <input
+              type="text"
+              value="${escapeHTML(ing.qty)}"
+              placeholder="Qté"
+              class="ing-qty col-span-3 px-2.5 py-2 rounded-lg border border-stone-300 text-xs outline-none focus:border-emerald-500"
+            />
+            <select class="ing-cat col-span-3 px-2 py-2 rounded-lg border border-stone-300 bg-white text-xs outline-none focus:border-emerald-500">
+              ${GROCERY_CATEGORIES.map((c) => `<option value="${c}" ${ing.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+            <button type="button" data-remove-ing="${idx}" class="col-span-1 p-1.5 text-stone-400 hover:text-rose-600 flex justify-center" title="Retirer">
+              ✕
+            </button>
+          </div>
+        `
+          )
+          .join('');
+
+        container.querySelectorAll('[data-remove-ing]').forEach((btn) => {
+          btn.onclick = () => {
+            syncIngredientsFromDOM();
+            const idx = Number(btn.dataset.removeIng);
+            ingredients.splice(idx, 1);
+            if (ingredients.length === 0) ingredients.push({ name: '', qty: '', category: 'Épicerie' });
+            renderIngredientRows();
+          };
+        });
+      };
+
+      renderIngredientRows();
+
+      document.getElementById('add-ing-row-btn').onclick = () => {
+        syncIngredientsFromDOM();
+        ingredients.push({ name: '', qty: '', category: 'Épicerie' });
+        renderIngredientRows();
+      };
+
+      document.getElementById('close-modal-btn').onclick = closeModal;
+      document.getElementById('cancel-recipe-btn').onclick = closeModal;
+      document.getElementById('modal-backdrop').onclick = (e) => {
+        if (e.target.id === 'modal-backdrop') closeModal();
+      };
+
+      document.getElementById('recipe-editor-form').onsubmit = async (e) => {
+        e.preventDefault();
+        syncIngredientsFromDOM();
+        const title = document.getElementById('rec-title-input').value.trim();
+        if (!title) return;
+
+        const cleanIngredients = ingredients
+          .filter((i) => i.name.trim() !== '')
+          .map((i) => ({
+            name: i.name.trim(),
+            qty: i.qty.trim(),
+            category: i.category
+          }));
+
+        await saveRecipe({
+          id: existingRecipe?.id,
+          createdAt: existingRecipe?.createdAt,
+          title,
+          category: document.getElementById('rec-cat-input').value,
+          prepTime: document.getElementById('rec-time-input').value,
+          notes: document.getElementById('rec-notes-input').value,
+          ingredients: cleanIngredients
+        });
+        closeModal();
+      };
+    }
+
+    function openQuickPlanRecipeModal(recipe) {
+      const weekOptions = [
+        { offset: 0, label: `Cette semaine (${formatWeekRange(currentMonday)})` },
+        { offset: 1, label: `Semaine prochaine (${formatWeekRange(addDays(currentMonday, 7))})` }
+      ];
+      if (state.weekOffset !== 0 && state.weekOffset !== 1) {
+        const viewedMonday = addDays(currentMonday, state.weekOffset * 7);
+        weekOptions.unshift({
+          offset: state.weekOffset,
+          label: `${getRelativeWeekLabel(state.weekOffset)} (${formatWeekRange(viewedMonday)})`
+        });
+      }
+
+      const modalRoot = document.getElementById('modal-root');
+      modalRoot.innerHTML = `
+        <div class="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4" id="modal-backdrop">
+          <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl border border-stone-200 overflow-hidden animate-fade-up">
+            <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">Planifier au semainier</p>
+                <h3 class="text-base font-bold text-stone-900 truncate">${escapeHTML(recipe.title)}</h3>
+              </div>
+              <button id="close-modal-btn" class="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <form id="quick-plan-form" class="p-5 space-y-4">
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-1">Semaine</label>
+                <select id="qp-week-select" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm outline-none focus:border-emerald-500">
+                  ${weekOptions.map((w) => `<option value="${w.offset}">${w.label}</option>`).join('')}
+                </select>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-1">Jour</label>
+                  <select id="qp-day-select" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm outline-none focus:border-emerald-500">
+                    ${DAYS_FR.map((d, idx) => `<option value="${idx}">${d}</option>`).join('')}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-1">Moment</label>
+                  <select id="qp-period-select" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm outline-none focus:border-emerald-500">
+                    <option value="midi">Midi</option>
+                    <option value="soir" selected>Soir</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="pt-2 flex justify-end gap-2">
+                <button type="button" id="cancel-qp-btn" class="px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 text-sm font-semibold">Annuler</button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold">Ajouter au planning</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('close-modal-btn').onclick = closeModal;
+      document.getElementById('cancel-qp-btn').onclick = closeModal;
+      document.getElementById('modal-backdrop').onclick = (e) => {
+        if (e.target.id === 'modal-backdrop') closeModal();
+      };
+
+      document.getElementById('quick-plan-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const offset = Number(document.getElementById('qp-week-select').value);
+        const dayIdx = Number(document.getElementById('qp-day-select').value);
+        const period = document.getElementById('qp-period-select').value;
+
+        const targetMonday = addDays(currentMonday, offset * 7);
+        const weekKey = toISODate(targetMonday);
+        const dayISO = toISODate(addDays(targetMonday, dayIdx));
+        const slotKey = `${dayISO}_${period}`;
+
+        await saveMealSlot(weekKey, slotKey, {
+          recipeId: recipe.id,
+          title: recipe.title,
+          cooked: false
+        });
+        closeModal();
+        showToast(`« ${recipe.title} » ajouté le ${DAYS_FR[dayIdx]} ${period} !`, 'success');
+      };
+    }
+
+    function openSyncAndGithubModal() {
+      const statusText =
+        state.syncMode === 'cloud'
+          ? 'Connecté au Cloud en temps réel'
+          : state.syncMode === 'local-memory'
+          ? 'Mode local autonome (mémoire navigateur)'
+          : 'Connexion en cours ou hors ligne';
+
+      const modalRoot = document.getElementById('modal-root');
+      modalRoot.innerHTML = `
+        <div class="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4" id="modal-backdrop">
+          <div class="bg-white w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl shadow-2xl border border-stone-200 overflow-hidden animate-fade-up max-h-[92vh] flex flex-col">
+            <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">${statusText}</p>
+                <h3 class="text-lg font-bold text-stone-900">Partage multi-appareils & GitHub</h3>
+              </div>
+              <button id="close-modal-btn" class="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-5 text-sm">
+              <!-- 1. Code Foyer -->
+              <form id="household-code-form" class="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2.5">
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-700">1. Code Foyer partagé</label>
+                <p class="text-xs text-stone-500">Saisissez le même code sur votre téléphone et votre ordinateur pour voir exactement les mêmes menus et courses.</p>
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    id="household-input"
+                    value="${escapeHTML(state.householdCode)}"
+                    placeholder="ex: famille-dupont"
+                    class="flex-1 px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-sm outline-none focus:border-emerald-500"
+                  />
+                  <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shrink-0">
+                    Rejoindre
+                  </button>
+                </div>
+              </form>
+
+              <!-- 2. Sauvegarde / Transfert JSON -->
+              <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2.5">
+                <p class="text-xs font-bold uppercase tracking-wider text-stone-700">2. Sauvegarde locale (Export / Import JSON)</p>
+                <p class="text-xs text-stone-500">Téléchargez une copie complète de vos recettes, historiques et courses ou restaurez-la sur un autre appareil.</p>
+                <div class="flex flex-wrap gap-2 pt-1">
+                  <button type="button" id="export-json-btn" class="px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold">
+                    Exporter (.json)
+                  </button>
+                  <label class="px-3.5 py-2 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-stone-700 text-xs font-semibold cursor-pointer">
+                    Importer (.json)
+                    <input type="file" id="import-json-input" accept=".json,application/json" class="hidden" />
+                  </label>
+                </div>
+              </div>
+
+              <!-- 3. Hébergement GitHub Pages -->
+              <div class="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-2">
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-900">3. Héberger gratuitement sur GitHub Pages</p>
+                <ol class="list-decimal list-inside text-xs text-emerald-950/80 space-y-1">
+                  <li>Créez un dépôt public sur <strong>GitHub</strong> et déposez ce fichier nommé <code class="px-1 py-0.5 bg-white rounded">index.html</code>.</li>
+                  <li>Allez dans <strong>Settings → Pages</strong> puis activez la branche <code class="px-1 py-0.5 bg-white rounded">main</code>.</li>
+                  <li>Pour synchroniser entre appareils depuis GitHub Pages, collez ci-dessous votre configuration <strong>Firebase Web</strong> (projet gratuit) :</li>
+                </ol>
+                <form id="custom-firebase-form" class="space-y-2 pt-2">
+                  <textarea
+                    id="firebase-json-input"
+                    rows="3"
+                    placeholder='{"apiKey":"...","authDomain":"...","projectId":"..."}'
+                    class="w-full p-2.5 rounded-xl border border-emerald-300 bg-white font-mono text-xs outline-none focus:border-emerald-600"
+                  ></textarea>
+                  <button type="submit" class="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold">
+                    Connecter ma base Firebase
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('close-modal-btn').onclick = closeModal;
+      document.getElementById('modal-backdrop').onclick = (e) => {
+        if (e.target.id === 'modal-backdrop') closeModal();
+      };
+
+      document.getElementById('household-code-form').onsubmit = (e) => {
+        e.preventDefault();
+        const raw = document.getElementById('household-input').value.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-');
+        if (!raw) return;
+        state.householdCode = raw;
+        updateSyncBadge(state.syncMode);
+        if (state.syncMode === 'cloud') {
+          attachFirestoreListeners();
+        } else {
+          renderApp();
+        }
+        closeModal();
+        showToast(`Connecté au foyer "${raw}"`, 'success');
+      };
+
+      document.getElementById('export-json-btn').onclick = () => {
+        const exportObj = {
+          exportedAt: new Date().toISOString(),
+          householdCode: state.householdCode,
+          recipes: state.recipes,
+          mealPlans: state.mealPlans,
+          groceries: state.groceries
+        };
+        const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `atelier-menu-${state.householdCode}-${toISODate(new Date())}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Sauvegarde JSON téléchargée !', 'success');
+      };
+
+      document.getElementById('import-json-input').onchange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          if (Array.isArray(parsed.recipes)) {
+            for (const r of parsed.recipes) {
+              await saveRecipe({ ...r, id: undefined });
+            }
+          }
+          if (parsed.mealPlans && typeof parsed.mealPlans === 'object') {
+            for (const [wk, plan] of Object.entries(parsed.mealPlans)) {
+              if (plan.slots) {
+                for (const [sk, meal] of Object.entries(plan.slots)) {
+                  await saveMealSlot(wk, sk, meal);
+                }
+              }
+            }
+          }
+          if (Array.isArray(parsed.groceries)) {
+            for (const g of parsed.groceries) {
+              await addGroceryItem(g);
+            }
+          }
+          closeModal();
+          showToast('Données importées avec succès !', 'success');
+        } catch (err) {
+          showToast('Fichier JSON invalide.', 'error');
+        }
+      };
+
+      const customFbForm = document.getElementById('custom-firebase-form');
+      if (customFbForm) {
+        customFbForm.onsubmit = async (e) => {
+          e.preventDefault();
+          try {
+            const cfg = JSON.parse(document.getElementById('firebase-json-input').value.trim());
+            closeModal();
+            await initCloudSync(cfg);
+            showToast('Connexion Cloud établie !', 'success');
+          } catch (err) {
+            showToast('Configuration JSON invalide.', 'error');
+          }
+        };
+      }
+    }
+
+    function closeModal() {
+      const modalRoot = document.getElementById('modal-root');
+      if (modalRoot) modalRoot.innerHTML = '';
+    }
+
+    // =========================================================================
+    // 9B. SUPPORT APPLICATION MOBILE (PWA iOS / ANDROID & GUIDE APK)
+    // =========================================================================
+    let deferredInstallPrompt = null;
+
+    function initPWASupport() {
+      try {
+        const iconSvg =
+          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23059669'/%3E%3Cpath d='M154 144v224M124 144v82c0 20 14 36 30 36s30-16 30-36v-82M286 144v224M286 144c42 0 72 30 72 72s-30 72-72 72' stroke='white' stroke-width='30' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E";
+
+        const manifestObj = {
+          name: 'Atelier Menu — Semainier & Courses',
+          short_name: 'Atelier Menu',
+          description: 'Gestionnaire de repas à la semaine, recettes et liste de courses partagée.',
+          start_url: window.location.href,
+          display: 'standalone',
+          background_color: '#FAF9F6',
+          theme_color: '#059669',
+          orientation: 'portrait-primary',
+          icons: [
+            { src: iconSvg, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+            { src: iconSvg, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+          ]
+        };
+
+        const blob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(blob);
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestUrl;
+        document.head.appendChild(link);
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredInstallPrompt = e;
+        });
+      } catch (err) {
+        console.warn('Manifest PWA non initialisé:', err);
+      }
+    }
+
+    function openMobileInstallModal() {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const modalRoot = document.getElementById('modal-root');
+
+      modalRoot.innerHTML = `
+        <div class="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4" id="modal-backdrop">
+          <div class="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-stone-200 overflow-hidden animate-fade-up max-h-[90vh] flex flex-col">
+            <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">iPhone & Android</p>
+                <h3 class="text-lg font-bold text-stone-900">Installer sur votre téléphone</h3>
+              </div>
+              <button id="close-modal-btn" class="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-4 text-sm">
+              <p class="text-xs sm:text-sm text-stone-600">
+                Votre application est configurée en <strong>Web App (PWA)</strong> : une fois ajoutée à l'écran d'accueil, elle obtient sa propre icône, s'ouvre <strong>en plein écran sans barre de navigateur</strong> et se met à jour automatiquement.
+              </p>
+
+              ${
+                deferredInstallPrompt
+                  ? `<button id="trigger-native-install-btn" class="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm transition-colors">
+                      📲 Installer l'application maintenant
+                    </button>`
+                  : ''
+              }
+
+              <!-- Guide iPhone -->
+              <div class="p-4 rounded-2xl ${isIOS ? 'bg-emerald-50/70 border-emerald-300' : 'bg-stone-50 border-stone-200/80'} border space-y-2">
+                <div class="flex items-center justify-between">
+                  <p class="text-xs font-bold uppercase tracking-wider text-stone-800">Sur iPhone / iPad (Safari)</p>
+                  ${isIOS ? '<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white">Votre appareil</span>' : ''}
+                </div>
+                <ol class="list-decimal list-inside text-xs text-stone-700 space-y-1.5">
+                  <li>Ouvrez votre lien GitHub Pages dans <strong>Safari</strong>.</li>
+                  <li>Appuyez sur l'icône <strong>Partager</strong> (le carré avec une flèche vers le haut en bas de l'écran).</li>
+                  <li>Faites défiler et appuyez sur <strong>« Sur l'écran d'accueil »</strong>, puis sur <strong>Ajouter</strong>.</li>
+                </ol>
+              </div>
+
+              <!-- Guide Android -->
+              <div class="p-4 rounded-2xl ${!isIOS ? 'bg-emerald-50/70 border-emerald-300' : 'bg-stone-50 border-stone-200/80'} border space-y-2">
+                <div class="flex items-center justify-between">
+                  <p class="text-xs font-bold uppercase tracking-wider text-stone-800">Sur Android (Chrome)</p>
+                  ${!isIOS ? '<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white">Votre appareil</span>' : ''}
+                </div>
+                <ol class="list-decimal list-inside text-xs text-stone-700 space-y-1.5">
+                  <li>Ouvrez votre lien GitHub Pages dans <strong>Google Chrome</strong>.</li>
+                  <li>Appuyez sur le menu <strong>⋮</strong> en haut à droite.</li>
+                  <li>Appuyez sur <strong>« Installer l'application »</strong> ou <strong>« Ajouter à l'écran d'accueil »</strong>.</li>
+                </ol>
+              </div>
+
+              <!-- Note APK -->
+              <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-950 space-y-1">
+                <p class="font-bold">Besoin d'un vrai fichier .APK Android ?</p>
+                <p>Les fichiers <code>.apk</code> sont réservés à Android (iPhone n'accepte pas les APK). Si vous souhaitez tout de même générer un fichier <code>.apk</code> installable sur Android, collez simplement l'adresse de votre site GitHub Pages sur <strong>pwabuilder.com</strong> (outil gratuit de Microsoft) pour le télécharger en 1 clic.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('close-modal-btn').onclick = closeModal;
+      document.getElementById('modal-backdrop').onclick = (e) => {
+        if (e.target.id === 'modal-backdrop') closeModal();
+      };
+
+      const nativeBtn = document.getElementById('trigger-native-install-btn');
+      if (nativeBtn && deferredInstallPrompt) {
+        nativeBtn.onclick = async () => {
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          closeModal();
+        };
+      }
+    }
+
+    // =========================================================================
+    // 10. ATTACHEMENT DES ÉVÉNEMENTS PAR VUE
+    // =========================================================================
+    function bindPlannerEvents() {
+      document.getElementById('prev-week-btn')?.addEventListener('click', () => {
+        state.weekOffset--;
+        renderApp();
+      });
+      document.getElementById('next-week-btn')?.addEventListener('click', () => {
+        state.weekOffset++;
+        renderApp();
+      });
+      document.getElementById('today-week-btn')?.addEventListener('click', () => {
+        state.weekOffset = 0;
+        renderApp();
+      });
+      document.getElementById('generate-groceries-btn')?.addEventListener('click', (e) => {
+        const wk = e.currentTarget.dataset.week;
+        sendWeekIngredientsToGroceries(wk);
+      });
+
+      document.querySelectorAll('[data-action="open-meal-picker"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          openMealPickerModal(btn.dataset.week, btn.dataset.slot, btn.dataset.period);
+        });
+      });
+
+      document.querySelectorAll('[data-action="toggle-cooked"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const { week, slot } = btn.dataset;
+          const meal = state.mealPlans[week]?.slots?.[slot];
+          if (meal) {
+            saveMealSlot(week, slot, { ...meal, cooked: !meal.cooked });
+          }
+        });
+      });
+
+      document.querySelectorAll('[data-action="remove-meal"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const { week, slot } = btn.dataset;
+          saveMealSlot(week, slot, null);
+        });
+      });
+    }
+
+    function bindGroceriesEvents() {
+      document.getElementById('quick-grocery-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nameEl = document.getElementById('grocery-name-input');
+        const qtyEl = document.getElementById('grocery-qty-input');
+        const catEl = document.getElementById('grocery-cat-input');
+        await addGroceryItem({
+          name: nameEl.value,
+          qty: qtyEl.value,
+          category: catEl.value
+        });
+        nameEl.value = '';
+        qtyEl.value = '';
+        nameEl.focus();
+      });
+
+      document.querySelectorAll('.gfilter-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.groceryFilter = btn.dataset.gfilter;
+          renderApp();
+        });
+      });
+
+      document.querySelectorAll('[data-action="toggle-grocery"]').forEach((btn) => {
+        btn.addEventListener('click', () => toggleGroceryItem(btn.dataset.id));
+      });
+
+      document.querySelectorAll('[data-action="delete-grocery"]').forEach((btn) => {
+        btn.addEventListener('click', () => deleteGroceryItem(btn.dataset.id));
+      });
+
+      document.getElementById('ask-clear-checked-btn')?.addEventListener('click', () => {
+        state.clearCheckedConfirm = true;
+        renderApp();
+      });
+      document.getElementById('cancel-clear-checked-btn')?.addEventListener('click', () => {
+        state.clearCheckedConfirm = false;
+        renderApp();
+      });
+      document.getElementById('confirm-clear-checked-btn')?.addEventListener('click', async () => {
+        state.clearCheckedConfirm = false;
+        await clearCheckedGroceries();
+      });
+    }
+
+    function bindRecipesEvents() {
+      document.getElementById('load-starter-pack-btn')?.addEventListener('click', () => loadUserStarterPack(false));
+      document.getElementById('open-new-recipe-btn')?.addEventListener('click', () => openRecipeEditorModal());
+      document.getElementById('empty-add-recipe-btn')?.addEventListener('click', () => openRecipeEditorModal());
+
+      const searchInput = document.getElementById('recipe-search-input');
+      searchInput?.addEventListener('input', () => {
+        state.recipeSearch = searchInput.value;
+        const pos = searchInput.selectionStart;
+        renderApp();
+        const newSearch = document.getElementById('recipe-search-input');
+        if (newSearch) {
+          newSearch.focus();
+          newSearch.setSelectionRange(pos, pos);
+        }
+      });
+
+      document.getElementById('recipe-cat-filter')?.addEventListener('change', (e) => {
+        state.recipeCategoryFilter = e.target.value;
+        renderApp();
+      });
+
+      document.querySelectorAll('[data-action="quick-plan-recipe"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const rec = state.recipes.find((r) => r.id === btn.dataset.id);
+          if (rec) openQuickPlanRecipeModal(rec);
+        });
+      });
+
+      document.querySelectorAll('[data-action="edit-recipe"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const rec = state.recipes.find((r) => r.id === btn.dataset.id);
+          if (rec) openRecipeEditorModal(rec);
+        });
+      });
+
+      document.querySelectorAll('[data-action="ask-delete-recipe"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.deleteConfirmId = btn.dataset.id;
+          renderApp();
+        });
+      });
+
+      document.querySelectorAll('[data-action="cancel-delete-recipe"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.deleteConfirmId = null;
+          renderApp();
+        });
+      });
+
+      document.querySelectorAll('[data-action="confirm-delete-recipe"]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.id;
+          state.deleteConfirmId = null;
+          await deleteRecipe(id);
+        });
+      });
+    }
+
+    function bindHistoryEvents() {
+      document.querySelectorAll('[data-action="jump-to-week"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.weekOffset = Number(btn.dataset.offset) || 0;
+          state.activeTab = 'planner';
+          renderApp();
+        });
+      });
+    }
+
+    // =========================================================================
+    // 11. DÉMARRAGE DE L'APPLICATION
+    // =========================================================================
+    document.querySelectorAll('[data-tab]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.activeTab = btn.dataset.tab;
+        state.deleteConfirmId = null;
+        state.clearCheckedConfirm = false;
+        renderApp();
+      });
+    });
+
+    document.getElementById('open-sync-btn')?.addEventListener('click', openSyncAndGithubModal);
+    document.getElementById('open-install-btn')?.addEventListener('click', openMobileInstallModal);
+
+    // Rendu initial immédiat puis connexion Cloud
+    initPWASupport();
+    renderApp();
+    initCloudSync();
+  </script>
+</body>
+</html>
