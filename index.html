@@ -102,6 +102,14 @@
           </button>
         </div>
 
+        <button type="button" id="open-notif-btn" title="Rappels repas à 11h00 et 18h00" class="px-2.5 sm:px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200/80 text-stone-700 text-xs font-semibold flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          <span class="hidden lg:inline">Rappels</span>
+          <span id="notif-active-dot" class="hidden w-2 h-2 rounded-full bg-emerald-500"></span>
+        </button>
+
         <button type="button" id="open-pwa-btn" class="px-2.5 sm:px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200/80 text-stone-700 text-xs font-semibold flex items-center gap-1.5 transition">
           <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -549,7 +557,14 @@
 
       recipeSearch: '',
       recipeCategoryFilter: 'ALL',
-      groceryHideChecked: false
+      groceryHideChecked: false,
+
+      notifications: {
+        enabled: false,
+        lunchAlertTime: '11:00',
+        dinnerAlertTime: '18:00',
+        notifiedSlots: {}
+      }
     };
 
     let db = null;
@@ -558,6 +573,8 @@
     let unsubRecipes = null;
     let unsubMealPlans = null;
     let unsubGroceries = null;
+    let unsubNotifSettings = null;
+    let exactNotifTimer = null;
 
     // =========================================================================
     // 4. INITIALISATION FIREBASE & AUTHENTIFICATION NON-ANONYME
@@ -658,6 +675,7 @@
       if (unsubRecipes) unsubRecipes();
       if (unsubMealPlans) unsubMealPlans();
       if (unsubGroceries) unsubGroceries();
+      if (unsubNotifSettings) unsubNotifSettings();
 
       const recipesCol = getHouseholdCollection('recipes');
       const mealPlansCol = getHouseholdCollection('mealPlans');
@@ -712,6 +730,20 @@
           renderApp();
         },
         (err) => handleFirestoreError(err)
+      );
+
+      unsubNotifSettings = onSnapshot(
+        getHouseholdDoc('settings', 'notifications'),
+        (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data.lunchAlertTime) state.notifications.lunchAlertTime = data.lunchAlertTime;
+            if (data.dinnerAlertTime) state.notifications.dinnerAlertTime = data.dinnerAlertTime;
+            persistLocalNotificationState();
+            scheduleNextExactNotification();
+          }
+        },
+        () => {}
       );
     }
 
@@ -2170,6 +2202,363 @@
     }
 
     // =========================================================================
+    // 12B. NOTIFICATIONS MOBILES À 11H00 (MIDI) & 18H00 (SOIR) + CALENDRIER
+    // =========================================================================
+    const NOTIF_STORAGE_KEY = 'atelier_menu_notif_prefs_v2';
+    const NOTIFIED_SLOTS_KEY = 'atelier_menu_notified_slots_v2';
+
+    function loadLocalNotificationState() {
+      try {
+        const savedPrefs = JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || 'null');
+        if (savedPrefs) {
+          if (savedPrefs.lunchAlertTime) state.notifications.lunchAlertTime = savedPrefs.lunchAlertTime;
+          if (savedPrefs.dinnerAlertTime) state.notifications.dinnerAlertTime = savedPrefs.dinnerAlertTime;
+        }
+        const savedSlots = JSON.parse(localStorage.getItem(NOTIFIED_SLOTS_KEY) || 'null');
+        if (savedSlots && typeof savedSlots === 'object') {
+          state.notifications.notifiedSlots = savedSlots;
+        }
+      } catch {}
+    }
+
+    function persistLocalNotificationState() {
+      try {
+        localStorage.setItem(
+          NOTIF_STORAGE_KEY,
+          JSON.stringify({
+            lunchAlertTime: state.notifications.lunchAlertTime,
+            dinnerAlertTime: state.notifications.dinnerAlertTime
+          })
+        );
+        localStorage.setItem(NOTIFIED_SLOTS_KEY, JSON.stringify(state.notifications.notifiedSlots));
+      } catch {}
+    }
+
+    function updateNotifIndicatorDot() {
+      const dot = document.getElementById('notif-active-dot');
+      if (!dot) return;
+      if (state.notifications.enabled && 'Notification' in window && Notification.permission === 'granted') {
+        dot.classList.remove('hidden');
+      } else {
+        dot.classList.add('hidden');
+      }
+    }
+
+    function syncInitialNotificationPermission() {
+      loadLocalNotificationState();
+      if ('Notification' in window && Notification.permission === 'granted') {
+        state.notifications.enabled = true;
+      }
+      updateNotifIndicatorDot();
+      scheduleNextExactNotification();
+    }
+
+    async function saveNotifTimesToCloud(lunchAlertTime, dinnerAlertTime) {
+      state.notifications.lunchAlertTime = lunchAlertTime;
+      state.notifications.dinnerAlertTime = dinnerAlertTime;
+      persistLocalNotificationState();
+      scheduleNextExactNotification();
+
+      if (db && state.currentUser) {
+        try {
+          await setDoc(getHouseholdDoc('settings', 'notifications'), { lunchAlertTime, dinnerAlertTime });
+        } catch {}
+      }
+    }
+
+    async function requestMobileNotificationPermission() {
+      if (!('Notification' in window)) {
+        showToast('Utilisez le bouton Calendrier (.ics) ci-dessous pour vos rappels.', 'info');
+        return false;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted') {
+        state.notifications.enabled = true;
+        updateNotifIndicatorDot();
+        scheduleNextExactNotification();
+        showToast('Notifications activées pour 11h00 et 18h00 !', 'success');
+        checkMealNotifications();
+        return true;
+      } else {
+        state.notifications.enabled = false;
+        updateNotifIndicatorDot();
+        showToast('Autorisation refusée. Sur iPhone, installez d’abord l’app sur l’écran d’accueil.', 'error');
+        return false;
+      }
+    }
+
+    async function dispatchDeviceNotification(title, body) {
+      showToast(`${title} — ${body}`, 'info');
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+      const options = {
+        body,
+        tag: 'atelier-menu-repas-' + Date.now(),
+        renotify: true,
+        vibrate: [200, 100, 200]
+      };
+
+      try {
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg && reg.showNotification) {
+            await reg.showNotification(title, options);
+            return;
+          }
+        }
+        new Notification(title, options);
+      } catch {}
+    }
+
+    function scheduleNextExactNotification() {
+      if (exactNotifTimer) {
+        clearTimeout(exactNotifTimer);
+        exactNotifTimer = null;
+      }
+      const now = new Date();
+      const candidates = [state.notifications.lunchAlertTime, state.notifications.dinnerAlertTime]
+        .filter(Boolean)
+        .map((timeStr) => {
+          const [hh, mm] = timeStr.split(':').map(Number);
+          const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 1, 0);
+          if (target <= now) target.setDate(target.getDate() + 1);
+          return target.getTime() - now.getTime();
+        });
+
+      if (candidates.length > 0) {
+        exactNotifTimer = setTimeout(() => {
+          checkMealNotifications();
+          scheduleNextExactNotification();
+        }, Math.min(...candidates));
+      }
+    }
+
+    function checkMealNotifications() {
+      if (!state.notifications.enabled) return;
+      if ('Notification' in window && Notification.permission !== 'granted') return;
+
+      const now = new Date();
+      const todayKey = formatWeekKey(now);
+      const currentWeekKey = formatWeekKey(getMondayOfWeek(0));
+      const jsDay = now.getDay();
+      const todayIdx = jsDay === 0 ? 6 : jsDay - 1;
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+      const slots = state.mealPlans[currentWeekKey] || {};
+      const checks = [
+        { period: 'lunch', label: 'Midi', alertTime: state.notifications.lunchAlertTime || '11:00' },
+        { period: 'dinner', label: 'Soir', alertTime: state.notifications.dinnerAlertTime || '18:00' }
+      ];
+
+      checks.forEach(({ period, label, alertTime }) => {
+        const slotKey = `${todayIdx}-${period}`;
+        const meal = slots[slotKey];
+        if (!meal || !meal.title || meal.cooked) return;
+
+        const [hStr, mStr] = alertTime.split(':');
+        const triggerMinutes = Number(hStr) * 60 + Number(mStr);
+
+        if (nowMinutes >= triggerMinutes && nowMinutes <= triggerMinutes + 90) {
+          const uniqueKey = `${todayKey}-${slotKey}-${alertTime}`;
+          if (state.notifications.notifiedSlots[uniqueKey]) return;
+
+          state.notifications.notifiedSlots[uniqueKey] = true;
+          persistLocalNotificationState();
+
+          const recipe = meal.recipeId ? state.recipes.find((r) => r.id === meal.recipeId) : null;
+          const ingSummary = recipe?.ingredients?.length
+            ? ` (${recipe.ingredients.map((i) => i.name).join(', ')})`
+            : '';
+
+          dispatchDeviceNotification(
+            `À cuisiner pour ce ${label.toLowerCase()} (${alertTime})`,
+            `${meal.title}${ingSummary}`
+          );
+        }
+      });
+    }
+
+    function exportWeekCalendarIcs() {
+      const monday = getMondayOfWeek(state.weekOffset);
+      const weekKey = formatWeekKey(monday);
+      const slots = state.mealPlans[weekKey] || {};
+      const entries = Object.entries(slots);
+
+      if (entries.length === 0) {
+        showToast('Aucun repas planifié sur cette semaine à exporter.', 'info');
+        return;
+      }
+
+      const pad = (n) => String(n).padStart(2, '0');
+      const toIcsDate = (d) =>
+        `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+
+      const lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Atelier Menu//Rappels Repas 11h 18h//FR',
+        'CALSCALE:GREGORIAN'
+      ];
+
+      entries.forEach(([slotKey, meal]) => {
+        if (!meal || !meal.title) return;
+        const [dayStr, period] = slotKey.split('-');
+        const dayIdx = Number(dayStr);
+        const timeStr =
+          period === 'lunch'
+            ? state.notifications.lunchAlertTime || '11:00'
+            : state.notifications.dinnerAlertTime || '18:00';
+        const [hh, mm] = timeStr.split(':').map(Number);
+
+        const start = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + dayIdx, hh, mm, 0);
+        const end = new Date(start.getTime() + 30 * 60000);
+
+        const recipe = meal.recipeId ? state.recipes.find((r) => r.id === meal.recipeId) : null;
+        const desc = recipe?.ingredients?.length
+          ? `Ingrédients : ${recipe.ingredients.map((i) => `${i.name}${i.qty ? ' (' + i.qty + ')' : ''}`).join(', ')}`
+          : 'Repas planifié dans Atelier Menu';
+
+        lines.push(
+          'BEGIN:VEVENT',
+          `UID:atelier-menu-${weekKey}-${slotKey}@github.io`,
+          `DTSTAMP:${toIcsDate(new Date())}`,
+          `DTSTART:${toIcsDate(start)}`,
+          `DTEND:${toIcsDate(end)}`,
+          `SUMMARY:À cuisiner (${period === 'lunch' ? 'Midi' : 'Soir'}) : ${meal.title}`,
+          `DESCRIPTION:${desc.replace(/\n/g, ' ')}`,
+          'BEGIN:VALARM',
+          'TRIGGER:PT0S',
+          'ACTION:DISPLAY',
+          `DESCRIPTION:À cuisiner : ${meal.title}`,
+          'END:VALARM',
+          'END:VEVENT'
+        );
+      });
+
+      lines.push('END:VCALENDAR');
+      const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `rappels-cuisine-${weekKey}.ics`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Rappels Calendrier (11h00 & 18h00) téléchargés !', 'success');
+    }
+
+    function openNotifSettingsModal() {
+      const container = document.getElementById('modal-container');
+      if (!container) return;
+
+      const supported = 'Notification' in window;
+      const perm = supported ? Notification.permission : 'unsupported';
+      const lunchAlertTime = state.notifications.lunchAlertTime || '11:00';
+      const dinnerAlertTime = state.notifications.dinnerAlertTime || '18:00';
+
+      const now = new Date();
+      const todayIdx = now.getDay() === 0 ? 6 : now.getDay() - 1;
+      const currentSlots = state.mealPlans[formatWeekKey(getMondayOfWeek(0))] || {};
+      const todayLunch = currentSlots[`${todayIdx}-lunch`]?.title || 'Aucun plat prévu';
+      const todayDinner = currentSlots[`${todayIdx}-dinner`]?.title || 'Aucun plat prévu';
+
+      container.innerHTML = `
+        <div class="modal-backdrop fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div class="modal-panel bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-h-[90vh] overflow-y-auto space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold uppercase text-emerald-700">Rappels Cuisine Mobile</span>
+                <h3 class="text-lg font-extrabold text-stone-900">Notifications à ${escapeHtml(lunchAlertTime)} et ${escapeHtml(dinnerAlertTime)}</h3>
+              </div>
+              <button type="button" id="close-modal-btn" class="w-9 h-9 rounded-xl bg-stone-100 font-bold text-stone-600">✕</button>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <p class="text-xs font-extrabold uppercase text-emerald-900">Notifications sur ce mobile</p>
+                  <p class="text-xs text-stone-600 mt-0.5">
+                    Statut : <strong>${perm === 'granted' ? 'Activées ✓' : perm === 'denied' ? 'Bloquées dans les réglages' : 'Non activées'}</strong>
+                  </p>
+                </div>
+                <button type="button" id="enable-mobile-notif-btn" class="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition shrink-0">
+                  ${perm === 'granted' ? 'Tester maintenant' : 'Activer sur ce mobile'}
+                </button>
+              </div>
+              <p class="text-[11px] text-emerald-900/80">
+                <strong>Sur iPhone :</strong> ajoutez d’abord l’app sur l’écran d’accueil (<em>Partager → Sur l’écran d’accueil</em>), puis ouvrez l’icône et cliquez sur <strong>Activer</strong>.
+              </p>
+            </div>
+
+            <form id="notif-times-form" class="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
+              <p class="text-xs font-extrabold uppercase text-stone-800">Heures d’envoi des notifications</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-stone-700 mb-1">Notification Midi</label>
+                  <input id="notif-lunch-time" type="time" value="${escapeHtml(lunchAlertTime)}"
+                    class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm font-bold" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-stone-700 mb-1">Notification Soir</label>
+                  <input id="notif-dinner-time" type="time" value="${escapeHtml(dinnerAlertTime)}"
+                    class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm font-bold" />
+                </div>
+              </div>
+              <button type="submit" class="w-full py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold transition">
+                Enregistrer ces horaires
+              </button>
+            </form>
+
+            <div class="p-3.5 rounded-2xl border border-stone-200 text-xs space-y-1">
+              <p class="font-extrabold text-stone-800">Notifications prévues aujourd’hui :</p>
+              <p class="text-stone-600">• <strong>${escapeHtml(lunchAlertTime)}</strong> (Midi) : ${escapeHtml(todayLunch)}</p>
+              <p class="text-stone-600">• <strong>${escapeHtml(dinnerAlertTime)}</strong> (Soir) : ${escapeHtml(todayDinner)}</p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2">
+              <p class="text-xs font-extrabold text-amber-950">Option 100 % garantie téléphone verrouillé (Calendrier)</p>
+              <p class="text-[11px] text-amber-900/90">
+                Ajoutez tous les plats de la semaine à votre Calendrier iPhone/Android avec une <strong>alerte native à ${escapeHtml(lunchAlertTime)} et ${escapeHtml(dinnerAlertTime)}</strong> :
+              </p>
+              <button type="button" id="export-ics-btn" class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition">
+                Ajouter les rappels de la semaine au Calendrier (.ics)
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('close-modal-btn')?.addEventListener('click', closeModal);
+
+      document.getElementById('enable-mobile-notif-btn')?.addEventListener('click', async () => {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          state.notifications.enabled = true;
+          updateNotifIndicatorDot();
+          const sampleDish =
+            todayDinner !== 'Aucun plat prévu'
+              ? todayDinner
+              : todayLunch !== 'Aucun plat prévu'
+              ? todayLunch
+              : 'Pâtes à la carbonara';
+          dispatchDeviceNotification(`Rappel cuisine (${dinnerAlertTime})`, `À cuisiner ce soir : ${sampleDish}`);
+        } else {
+          const ok = await requestMobileNotificationPermission();
+          if (ok) openNotifSettingsModal();
+        }
+      });
+
+      document.getElementById('notif-times-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const lTime = document.getElementById('notif-lunch-time').value || '11:00';
+        const dTime = document.getElementById('notif-dinner-time').value || '18:00';
+        await saveNotifTimesToCloud(lTime, dTime);
+        showToast(`Horaires enregistrés : notifications à ${lTime} et ${dTime} !`, 'success');
+        openNotifSettingsModal();
+      });
+
+      document.getElementById('export-ics-btn')?.addEventListener('click', exportWeekCalendarIcs);
+    }
+
+    // =========================================================================
     // 13. RENDU GLOBAL & CONFIGURATION ICÔNE PWA
     // =========================================================================
     function renderApp() {
@@ -2249,6 +2638,7 @@
       });
     });
 
+    document.getElementById('open-notif-btn')?.addEventListener('click', openNotifSettingsModal);
     document.getElementById('open-sync-btn')?.addEventListener('click', openSyncAndGithubModal);
     document.getElementById('open-pwa-btn')?.addEventListener('click', openPwaGuideModal);
     document.getElementById('header-logout-btn')?.addEventListener('click', async () => {
@@ -2257,6 +2647,14 @@
         showToast('Vous êtes déconnecté.', 'info');
       }
     });
+
+    // Vérification régulière des rappels à 11h00 (Midi) et 18h00 (Soir)
+    syncInitialNotificationPermission();
+    setInterval(checkMealNotifications, 15000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) checkMealNotifications();
+    });
+    window.addEventListener('focus', checkMealNotifications);
 
     setupPwaAssets();
     initFirebase();
